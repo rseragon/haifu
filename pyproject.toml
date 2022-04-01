@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "haifu"
+version = "0.1.0"
+description = "Distributed Meta-Package Manager"
+authors = ["rseragon"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pyalpm = "^0.10.6"
+colorama = "^0.4.4"
+
+[tool.poetry.dev-dependencies]
+flake8-bugbear = "^22.3.23"
+mypy = "^0.942"
+black = "^22.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
