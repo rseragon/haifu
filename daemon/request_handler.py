@@ -6,6 +6,7 @@ from daemon.helper_functions import error_writer
 from daemon.Types import RequestType, ResultType
 from daemon.Result import Result
 from daemon.Request import Request
+from utils.Package import Package
 
 from typing import Any
 from asyncio import StreamReader, StreamWriter
@@ -76,14 +77,18 @@ async def search_package(pkg_name: str, writer: StreamWriter) -> None:
     """
     pkg_list: list[str] = PackageManager.search_pkg(pkg_name)
     Debug.debug(f"[Package Names] {pkg_list}")
-    pass
+
+    # TODO: write to writer
 
 
 async def package_info(pkg_name: str, writer: StreamWriter) -> None:
     """
     Handles getting package information
     """
-    pass
+    pkg_info: list[Package] = PackageManager.get_info(pkg_name)
+    Debug.debug(f"[Package Info] {pkg_info}")
+
+    # TODO: write to writer
 
 
 async def send_package(pkg_name: str, reader: StreamReader, writer: StreamWriter):

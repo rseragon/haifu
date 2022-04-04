@@ -16,13 +16,16 @@ class Package:
         self.file_name = f"{self.name}-{self.ver}-{self.arch}.pkg.tar.zst"
 
     def print(self):
-        print(f"Package Name: {self.name}\n\
+        print(self)
+
+    def filename(self):
+        return self.file_name
+
+    def __repr__(self) -> str:
+        return f"Package Name: {self.name}\n\
                 File   : {self.file_name}\n\
                 Arch   : {self.arch}\n\
                 Version: {self.ver}\n\
                 MD5Hash: {self.md5}\n\
                 SHA256 : {self.sha}\n\
-                Depends: {str(self.deps)}")
-
-    def filename(self):
-        return self.file_name
+                Depends: {str(self.deps)}"

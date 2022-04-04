@@ -48,7 +48,15 @@ def get_info(pkg_name: str) -> list[Package]:
     info about the package like MD5, depnds,
     arch etc.
     """
-    return []
+    pkg_info: list[Package] = []
+
+    for db in SYNCDBS:
+        pkgs = db.search(pkg_name)
+        for pkg in pkgs:
+            pkg_info.append(Package(pkg.name, pkg.md5sum, pkg.sha256sum, pkg.depends,
+                                    pkg.version, pkg.arch))
+
+    return pkg_info
 
 def check_installed(pkg_name: str) -> bool:
     """
