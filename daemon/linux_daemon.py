@@ -3,6 +3,8 @@ import asyncio
 import utils.Debug as Debug
 import utils.config as config
 from daemon.Server import Server
+from daemon.helper_functions import read_data, dict_from_str
+from daemon.request_handler import process_request
 
 # Typing
 from typing import Callable, Any
@@ -21,7 +23,6 @@ async def handle_request(
     writer: StreamWriter,
     server: Server,
 ) -> None:
-
     """
     Handles request given by the server
     """
@@ -30,6 +31,11 @@ async def handle_request(
     Debug.debug(f"[Connection] New: {sockname} <- {peername}")
 
     # TODO: Main stuff goes here
+    data = await read_data(reader) 
+
+    dict_data = dict_from_str(data)
+
+    await process_request(dict_data, reader, writer)
 
     await writer.drain()
     writer.close()
@@ -50,15 +56,16 @@ async def async_start() -> None:
                 await server.serve_forever()
     except CancelledError:
         Debug.debug("Closing server")
-        await server.aclose()
     except Exception as ex:
         Debug.error(0, "Exception occured: " + str(ex))
-
-    Debug.info("Server closed")
 
 
 def start() -> None:
     """
     Starts the linux daemon
     """
-    asyncio.run(async_start())
+    try:
+        asyncio.run(async_start())
+    except KeyboardInterrupt:
+        Debug.info("Keyboard interrupt occured, closing server...")
+    Debug.info("Server closed")
