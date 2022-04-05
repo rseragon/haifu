@@ -3,19 +3,21 @@ import asyncio
 import utils.Debug as Debug
 import utils.config as config
 from daemon.Server import Server
-from daemon.helper_functions import read_data, dict_from_str
+from utils.helper_functions import read_data, dict_from_str
 from daemon.request_handler import process_request
 
 # Typing
 from typing import Callable, Any
 from asyncio import CancelledError, StreamReader, StreamWriter
 
+"""
 if (platform.freedesktop_os_release().get("ID", "") == "arch") or (
     platform.freedesktop_os_release().get("ID_LIKE", "") == "arch"
 ):
     Debug.debug(f"[OS] ID: {platform.freedesktop_os_release().get('ID', '')}")
 else:
     Debug.error(1, "Supports only Arch as of now")
+"""
 
 
 async def handle_request(

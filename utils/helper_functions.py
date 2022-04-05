@@ -4,11 +4,20 @@ import utils.Debug as Debug
 from typing import Any
 
 
-def make_strjson(code_type: int, data: dict) -> str:
+def make_response_strjson(code_type: int, data: dict) -> str:
+    """
+    Takes in a dict and returns a bytes type request json data
+    """
+    return json.dumps({"Type": code_type, "Data": data})
+
+
+def make_result_strjson(result_type: int, data: dict, error: str = "") -> str:
     """
     Takes in a dict and returns a byptes type json data
     """
-    return json.dumps({"Type": code_type, "Data": data})
+    return json.dumps(
+        {"Result": result_type, "Payload": {"Data": data, "Error": error}}
+    )
 
 
 # TODO: type annotation
@@ -68,6 +77,6 @@ async def write_data(data: str, writer: StreamWriter):
 async def error_writer(msg: str, writer: StreamWriter) -> None:
     peername = writer.get_extra_info("peername")
     Debug.error(0, f"[Connection {peername} ]: " + msg)
-    error_message = json.dumps({"Type": -1, "Data": msg}) # TODO: Standardize
-    #error_message = make_strjson(-1, msg)
+    error_message = json.dumps({"Type": -1, "Data": msg})  # TODO: Standardize
+    # error_message = make_strjson(-1, msg)
     await write_data(error_message, writer)

@@ -1,4 +1,5 @@
-from daemon.Types import RequestType
+from utils.Types import RequestType
+import json
 
 """
 Reqeust json skelton
@@ -12,11 +13,11 @@ Reqeust json skelton
 }
 """
 
-class Request:
 
+class Request:
     def __init__(self, req: dict):
         """
-        Takes in the request dict and 
+        Takes in the request dict and
         converts into a object
         """
         self.type: int = req.get("Type", -1)
@@ -27,19 +28,20 @@ class Request:
         self.peerid: str = ""
         self.package_name: str = ""
 
-
         if self.payload is not None:
             self.peer_name: str = self.payload.get("Peer Name", "")
             self.peerid: str = self.payload.get("PUID", "")
             self.package_name: str = self.payload.get("Package Name", "")
 
     def isInvalid(self) -> bool:
-        return (self.type == RequestType.INVALID) \
-                or (self.type > RequestType.REQ_MAX_NUM) \
-                or  (self.type < RequestType.REQ_MIN_NUM)
+        return (
+            (self.type == RequestType.INVALID)
+            or (self.type > RequestType.REQ_MAX_NUM)
+            or (self.type < RequestType.REQ_MIN_NUM)
+        )
 
     def hasData(self) -> bool:
-        return (self.payload is not None)
+        return self.payload is not None
 
     def getType(self) -> int:
         return self.type
@@ -52,3 +54,12 @@ class Request:
 
     def getPackageName(self) -> str:
         return self.package_name
+
+    def to_json(self) -> str:
+        return json.dumps({
+            "Type": self.type,
+            "Payload": {
+                "Pacakge Name": self.package_name,
+                "Peer Name": self.peer_name
+                }
+            })

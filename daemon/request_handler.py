@@ -2,10 +2,10 @@ import platform
 import json
 import utils.Debug as Debug
 import asyncio
-from daemon.helper_functions import error_writer
-from daemon.Types import RequestType, ResultType
-from daemon.Result import Result
-from daemon.Request import Request
+from utils.helper_functions import error_writer, make_response_strjson, make_result_strjson, write_data
+from utils.Types import RequestType, ResultType
+from utils.Result import Result
+from utils.Request import Request
 from utils.Package import Package
 
 from typing import Any
@@ -76,9 +76,11 @@ async def search_package(pkg_name: str, writer: StreamWriter) -> None:
     Handles the search request
     """
     pkg_list: list[str] = PackageManager.search_pkg(pkg_name)
-    Debug.debug(f"[Package Names] {pkg_list}")
+    #Debug.debug(f"[Package Names] {pkg_list}")
 
-    # TODO: write to writer
+    res_json = make_result_strjson(ResultType.SUCCESSFUL, pkg_list)
+
+    await write_data(res_json, writer)
 
 
 async def package_info(pkg_name: str, writer: StreamWriter) -> None:
@@ -86,9 +88,10 @@ async def package_info(pkg_name: str, writer: StreamWriter) -> None:
     Handles getting package information
     """
     pkg_info: list[Package] = PackageManager.get_info(pkg_name)
-    Debug.debug(f"[Package Info] {pkg_info}")
+    #Debug.debug(f"[Package Info] {pkg_info}")
 
-    # TODO: write to writer
+    res_json = make_result_strjson(ResultType.SUCCESSFUL, pkg_info)
+    await write_data(res_json, writer)
 
 
 async def send_package(pkg_name: str, reader: StreamReader, writer: StreamWriter):
