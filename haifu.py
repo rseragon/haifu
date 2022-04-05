@@ -1,5 +1,5 @@
 import sys
-from daemon import daemon
+from cli import cli_parser
 
 if __name__ == '__main__':
-    daemon.start()
+    cli_parser.parse_cliargs(sys.argv)

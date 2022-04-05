@@ -8,6 +8,8 @@ stuff
 def get_hostport() -> tuple[str, int]:
     return "0.0.0.0", 42069
 
+def get_daemon_hostport() -> tuple[str, int]:
+    return "0.0.0.0", 42069
 
 def peer_list() -> list[list]:
     """

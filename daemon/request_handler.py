@@ -1,3 +1,4 @@
+from asyncio.exceptions import CancelledError
 import platform
 import json
 import utils.Debug as Debug
@@ -45,7 +46,9 @@ async def process_request(
 
     request_type = req.getType()
 
-    if request_type == RequestType.SEARCH:
+    if request_type == RequestType.QUIT:
+        raise CancelledError("Closing server")
+    elif request_type == RequestType.SEARCH:
         package_name = req.getPackageName()
         if package_name == "":
             return
@@ -76,7 +79,7 @@ async def search_package(pkg_name: str, writer: StreamWriter) -> None:
     Handles the search request
     """
     pkg_list: list[str] = PackageManager.search_pkg(pkg_name)
-    #Debug.debug(f"[Package Names] {pkg_list}")
+    Debug.debug(f"[Package Names] {pkg_list}")
 
     res_json = make_result_strjson(ResultType.SUCCESSFUL, pkg_list)
 
@@ -88,7 +91,7 @@ async def package_info(pkg_name: str, writer: StreamWriter) -> None:
     Handles getting package information
     """
     pkg_info: list[Package] = PackageManager.get_info(pkg_name)
-    #Debug.debug(f"[Package Info] {pkg_info}")
+    Debug.debug(f"[Package Info] {pkg_info}")
 
     res_json = make_result_strjson(ResultType.SUCCESSFUL, pkg_info)
     await write_data(res_json, writer)

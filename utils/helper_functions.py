@@ -1,14 +1,16 @@
 import json
 from asyncio import StreamReader, StreamWriter
+import socket
 import utils.Debug as Debug
 from typing import Any
+from utils.Types import ResultType
 
 
 def make_response_strjson(code_type: int, data: dict) -> str:
     """
     Takes in a dict and returns a bytes type request json data
     """
-    return json.dumps({"Type": code_type, "Data": data})
+    return json.dumps({"Type": code_type, "Payload": data})
 
 
 def make_result_strjson(result_type: int, data: dict, error: str = "") -> str:
@@ -77,6 +79,33 @@ async def write_data(data: str, writer: StreamWriter):
 async def error_writer(msg: str, writer: StreamWriter) -> None:
     peername = writer.get_extra_info("peername")
     Debug.error(0, f"[Connection {peername} ]: " + msg)
-    error_message = json.dumps({"Type": -1, "Data": msg})  # TODO: Standardize
+    error_message = make_result_strjson(ResultType.ERROR, {}, msg)
     # error_message = make_strjson(-1, msg)
     await write_data(error_message, writer)
+
+
+def send_data(data: str, host: str, port: int) -> str:
+    """
+    Sends data to (host, port) and returns response
+    using Block socket connection
+    """
+    resp = b""
+
+    bytes_data = data.encode('gbk')
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+
+        # Send data
+        sock.connect((host, port))
+        sock.send(str(len(bytes_data)).encode('gbk')) # Send length
+        sock.send(b'\n') # A new line
+        sock.send(bytes_data) # the real data
+
+        # Receive data
+        while True:
+            temp = sock.recv(1)
+            if not temp: break
+            resp += temp
+
+    result = resp.decode('utf-8')
+
+    return result[result.find('\n'):]

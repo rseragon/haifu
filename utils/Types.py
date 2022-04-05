@@ -30,7 +30,8 @@ class ResultType(IntEnum):
     """
     SUCCESSFUL = 1
     FAILED = 0
-    INVALID = -1
+    ERROR = -1
+    INVALID = -2
 
     RES_MIN_NUM = -1
     RES_MAX_NUM = 1

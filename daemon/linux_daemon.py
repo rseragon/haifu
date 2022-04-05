@@ -2,6 +2,7 @@ import platform
 import asyncio
 import utils.Debug as Debug
 import utils.config as config
+from utils.Types import RequestType
 from daemon.Server import Server
 from utils.helper_functions import read_data, dict_from_str
 from daemon.request_handler import process_request
@@ -36,6 +37,9 @@ async def handle_request(
     data = await read_data(reader) 
 
     dict_data = dict_from_str(data)
+
+    if dict_data.get("Type", RequestType.INVALID) == RequestType.QUIT:
+        await server.aclose()
 
     await process_request(dict_data, reader, writer)
 
