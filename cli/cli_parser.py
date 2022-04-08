@@ -5,7 +5,7 @@ from daemon import daemon
 from utils.helper_functions import make_response_strjson, send_data
 from utils.Types import RequestType
 import utils.Debug  as Debug
-import utils.config as Config
+from utils.Config import Config
 
 def parse_cliargs(args: list) -> None:
     parser = argparse.ArgumentParser()
@@ -14,7 +14,7 @@ def parse_cliargs(args: list) -> None:
 
     cli_args = parser.parse_args()
 
-    [dhost, dport] = Config.get_daemon_hostport()
+    [dhost, dport] = Config.get_hostport()
 
     Debug.debug(f"[CLI] SUBCOMMAND: {cli_args.subcmd}")
     Debug.debug(f"[CLI] ACTION: {cli_args.action}")

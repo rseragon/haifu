@@ -1,7 +1,7 @@
-import platform
 import asyncio
 import utils.Debug as Debug
 import utils.config as config
+from utils.Config import Config
 from utils.Types import RequestType
 from daemon.Server import Server
 from utils.helper_functions import read_data, dict_from_str
@@ -54,7 +54,10 @@ async def async_start() -> None:
     """
     Starts the async server
     """
-    [host, port] = config.get_hostport()
+    [host, port] = Config.get_hostport()
+    #host = str(host)
+    host = "0.0.0.0"
+    port = int(port)
 
     try:
         async with Server(host, port, handle_request) as server:
@@ -62,8 +65,10 @@ async def async_start() -> None:
                 await server.serve_forever()
     except CancelledError:
         Debug.debug("Closing server")
+    """
     except Exception as ex:
         Debug.error(0, "Exception occured: " + str(ex))
+    """
 
 
 def start() -> None:
