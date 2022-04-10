@@ -1,5 +1,5 @@
 import sys
-import utils.Debug as Debug
+from utils.Debug import Debug
 
 if sys.platform == 'linux':
     from daemon.linux_daemon import start

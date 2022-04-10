@@ -4,7 +4,7 @@ from pathlib import Path
 import configparser
 from datetime import datetime
 import sys
-import utils.Debug as Debug
+from utils.Debug import Debug
 
 
 class Config:
@@ -28,6 +28,7 @@ class Config:
     HOST: str = ""
     PORT: int = -1  
 
+    @staticmethod
     def populate_dirs() -> None:
 
         config_dir = appdirs.user_config_dir(Config.PROJECT_NAME)
@@ -58,6 +59,7 @@ class Config:
         Config.CONFIG_NAME = config_name
 
 
+    @staticmethod
     def get_logfile():  # TODO: Type annotation
         """
         Returns the file object for the log file
@@ -79,6 +81,7 @@ class Config:
         return Config.LOG_FILE
 
 
+    @staticmethod
     def _basic_config() -> None:
         """
         Adds basic config
@@ -94,6 +97,7 @@ class Config:
             conf_file.write(conf)
 
 
+    @staticmethod
     def get_hostport() -> tuple[str, int]:
         """
         Reads the config and returns the host and port

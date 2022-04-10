@@ -1,7 +1,7 @@
 import json
 from asyncio import StreamReader, StreamWriter
 import socket
-import utils.Debug as Debug
+from utils.Debug import Debug
 from typing import Any
 from utils.Types import ResultType
 
@@ -95,7 +95,10 @@ def send_data(data: str, host: str, port: int) -> str:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
         # Send data
-        sock.connect((host, port))
+        try:
+            sock.connect((host, port))
+        except ConnectionRefusedError as cre:
+            Debug.error(1, "Failed to connect to host ({}, {})".format(host, port))
         sock.send(str(len(bytes_data)).encode('gbk')) # Send length
         sock.send(b'\n') # A new line
         sock.send(bytes_data) # the real data

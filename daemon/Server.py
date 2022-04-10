@@ -2,7 +2,7 @@ import asyncio
 import socket
 from typing import Callable, Any, Coroutine
 from asyncio import StreamReader, StreamWriter
-import utils.Debug as Debug
+from utils.Debug import Debug
 
 
 class Server:

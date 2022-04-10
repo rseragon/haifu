@@ -1,5 +1,5 @@
 import asyncio
-import utils.Debug as Debug
+from utils.Debug import Debug
 import utils.config as config
 from utils.Config import Config
 from utils.Types import RequestType

@@ -4,8 +4,9 @@ import sys
 from daemon import daemon
 from utils.helper_functions import make_response_strjson, send_data
 from utils.Types import RequestType
-import utils.Debug  as Debug
+from utils.Debug import Debug
 from utils.Config import Config
+
 
 def parse_cliargs(args: list) -> None:
     parser = argparse.ArgumentParser()
