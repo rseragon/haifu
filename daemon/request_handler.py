@@ -1,8 +1,7 @@
 from asyncio.exceptions import CancelledError
 import platform
-import json
+import signal
 from utils.Debug import Debug
-import asyncio
 from utils.helper_functions import error_writer, make_response_strjson, make_result_strjson, write_data
 from utils.Types import RequestType, ResultType
 from utils.Result import Result
@@ -47,7 +46,8 @@ async def process_request(
     request_type = req.getType()
 
     if request_type == RequestType.QUIT:
-        raise CancelledError("Closing server")
+        # Will be handeled by signal handler
+        pass
     elif request_type == RequestType.SEARCH:
         package_name = req.getPackageName()
         if package_name == "":

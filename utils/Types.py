@@ -13,7 +13,7 @@ class RequestType(IntEnum):
 
     """
     INVALID   = -1
-    QUIT      = 0
+    QUIT      = 0 # this is dummy, Will be handled by signals
     SEARCH    = 1
     GET_INFO  = 2
     SEND_PKG  = 3

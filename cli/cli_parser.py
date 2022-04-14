@@ -27,7 +27,7 @@ def parse_cliargs(args: list) -> None:
             Debug.error(1, f"Action not provided\nUsage: {sys.argv[0]} daemon start/stop")
             return
         elif cli_args.action == 'start':
-            daemon.start()
+            daemon.main()
         elif cli_args.action == 'stop':
             send_data(make_response_strjson(RequestType.QUIT, {}), dhost, dport)
         else:

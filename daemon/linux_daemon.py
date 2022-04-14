@@ -1,6 +1,5 @@
 import asyncio
 from utils.Debug import Debug
-import utils.config as config
 from utils.Config import Config
 from utils.Types import RequestType
 from daemon.Server import Server
@@ -10,15 +9,6 @@ from daemon.request_handler import process_request
 # Typing
 from typing import Callable, Any
 from asyncio import CancelledError, StreamReader, StreamWriter
-
-"""
-if (platform.freedesktop_os_release().get("ID", "") == "arch") or (
-    platform.freedesktop_os_release().get("ID_LIKE", "") == "arch"
-):
-    Debug.debug(f"[OS] ID: {platform.freedesktop_os_release().get('ID', '')}")
-else:
-    Debug.error(1, "Supports only Arch as of now")
-"""
 
 
 async def handle_request(
@@ -55,8 +45,7 @@ async def async_start() -> None:
     Starts the async server
     """
     [host, port] = Config.get_hostport()
-    #host = str(host)
-    host = "0.0.0.0"
+    host = str(host)
     port = int(port)
 
     try:
@@ -65,6 +54,7 @@ async def async_start() -> None:
                 await server.serve_forever()
     except CancelledError:
         Debug.debug("Closing server")
+        Config.remove_pidfile()
     """
     except Exception as ex:
         Debug.error(0, "Exception occured: " + str(ex))

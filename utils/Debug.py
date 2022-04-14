@@ -8,6 +8,19 @@ class Debug:
     DEBUG = True
     INFO = True
 
+
+    @staticmethod
+    def set_level(level: int) -> None:
+        """
+        Sets the level for the debugging
+        0 -> Nothing
+        1 -> info
+        2 -> debug
+        TODO: Standardise
+        """
+        pass
+
+
     @staticmethod
     def error(error_code: int, msg: str, atexit: Callable[[], None] = None) -> None:
         """

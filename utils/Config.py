@@ -22,8 +22,12 @@ class Config:
 
     CONFIG_NAME: str = ""
 
+
     LOG_FILE = None  # TODO: Type annotate 
     CONFIG_FILE = None
+    PID_FILE: str = ""
+
+    PID: int = ""
 
     HOST: str = ""
     PORT: int = -1  
@@ -57,6 +61,8 @@ class Config:
         Config.DIR_POPULATED = True
         config_name: str = str((Path(Config.CONFIG_DIR)/"config.ini").absolute())
         Config.CONFIG_NAME = config_name
+        if not Path(config_name).exists():
+            Config._basic_config()
 
 
     @staticmethod
@@ -117,9 +123,6 @@ class Config:
         if Config.HOST != "":
             return (Config.HOST, Config.PORT)
 
-        if Path(Config.CONFIG_NAME).exists() is False:
-            Config._basic_config()
-
         Debug.debug("config file name: " + Config.CONFIG_NAME)
         
         parser = configparser.ConfigParser()
@@ -136,3 +139,40 @@ class Config:
             Config.PORT = int(parser['daemon']['port'].strip())
         
         return Config.HOST, Config.PORT
+
+    @staticmethod
+    def get_pidfile() -> str:
+        """
+        returns the location of the pid file
+        """
+        if not Config.DIR_POPULATED:
+            Config.populate_dirs()
+
+        file_name = str((Path(Config.CONFIG_DIR) / "pid.txt").absolute())
+        Config.PID_FILE = file_name
+
+        return file_name
+
+
+    @staticmethod
+    def get_pid() -> int:
+        """
+        returns the pid of current daemon if running
+        or else returns -1
+        """
+
+        file_name = Config.get_pidfile()
+
+        if Path(file_name).exists():
+            with open(file_name, "r") as f:
+                pid = int(f.readline())
+                return pid
+        else:
+            return -1
+
+    @staticmethod
+    def remove_pidfile() -> None:
+        try:
+            os.remove(Config.get_pidfile())
+        finally:  # Don't care if file doesn't exist
+            pass
