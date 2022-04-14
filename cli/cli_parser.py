@@ -1,11 +1,13 @@
 import argparse
 import sys
+import os  # Signal
+import signal
 
 from daemon import daemon
 from utils.helper_functions import make_response_strjson, send_data
 from utils.Types import RequestType
 from utils.Debug import Debug
-from utils.Config import Config
+import utils.Config as Config
 
 
 def parse_cliargs(args: list) -> None:
@@ -29,7 +31,13 @@ def parse_cliargs(args: list) -> None:
         elif cli_args.action == 'start':
             daemon.main()
         elif cli_args.action == 'stop':
-            send_data(make_response_strjson(RequestType.QUIT, {}), dhost, dport)
+            # send_data(make_response_strjson(RequestType.QUIT, {}), dhost, dport)
+            # Raise signal
+            pid = Config.get_pid()
+            if pid != -1:
+                os.kill(pid, signal.SIGINT)
+            else:
+                Debug.error(1, "Unknown pid")
         else:
             Debug.error(1, f"Action not provided\nUsage: {sys.argv[0]} daemon start/stop")
     elif cli_args.subcmd == 'search':

@@ -1,6 +1,6 @@
 import asyncio
 from utils.Debug import Debug
-from utils.Config import Config
+import utils.Config as Config
 from utils.Types import RequestType
 from daemon.Server import Server
 from utils.helper_functions import read_data, dict_from_str

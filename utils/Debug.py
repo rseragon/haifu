@@ -3,6 +3,7 @@ from collections.abc import Callable
 from utils.colors import print_red, print_yellow, print_cyan
 from pprint import pprint
 
+
 class Debug:
 
     DEBUG = True
@@ -30,7 +31,11 @@ class Debug:
             1  -> print message and exit
            -1  -> call a function before quit
         """
-        print_red("[ERROR] " + msg)
+        import utils.Config as Conf  # To fix circular import
+        error_msg = "[ERROR] " + msg
+        Conf.get_logfile().writelines(error_msg + "\n")
+        Conf.get_logfile().flush()
+        print_red(error_msg)
         if error_code == 1:
             sys.exit()
         elif error_code == -1:
@@ -40,13 +45,21 @@ class Debug:
 
     @staticmethod
     def debug(msg: str) -> None:
+        import utils.Config as Conf  # To fix circular import
+        debug_msg = "[DEBUG] " + msg
+        Conf.get_logfile().writelines(debug_msg + "\n")
+        Conf.get_logfile().flush()
         if Debug.DEBUG:
-            print_yellow("[DEBUG] " + msg)
+            print_yellow(debug_msg)
 
     @staticmethod
     def info(msg: str) -> None:
+        import utils.Config as Conf  # To fix circular import
+        info_msg = "[INFO] " + msg
+        Conf.get_logfile().writelines(info_msg + "\n")
+        Conf.get_logfile().flush()
         if Debug.INFO:
-            print_cyan("[INFO] " + msg)
+            print_cyan(info_msg)
 
     @staticmethod
     def wpprint(data: str) -> None:
