@@ -6,7 +6,7 @@ import signal
 from daemon import daemon
 from utils.helper_functions import make_response_strjson, send_data
 from utils.Types import RequestType
-from utils.Debug import Debug
+import utils.Debug as Debug
 import utils.Config as Config
 
 

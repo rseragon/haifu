@@ -1,6 +1,6 @@
 import pyalpm
 from pathlib import Path
-from utils.Debug import Debug
+import utils.Debug as Debug
 from utils.Package import Package
 
 PACMAN_DIR = '/var/lib/pacman'

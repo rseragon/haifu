@@ -1,5 +1,5 @@
 import asyncio
-from utils.Debug import Debug
+import utils.Debug as Debug
 import utils.Config as Config
 from utils.Types import RequestType
 from daemon.Server import Server

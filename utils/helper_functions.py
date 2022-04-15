@@ -1,7 +1,7 @@
 import json
 from asyncio import StreamReader, StreamWriter
 import socket
-from utils.Debug import Debug
+import utils.Debug as Debug
 from typing import Any
 from utils.Types import ResultType
 

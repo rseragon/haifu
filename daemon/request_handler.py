@@ -1,7 +1,7 @@
 from asyncio.exceptions import CancelledError
 import platform
 import signal
-from utils.Debug import Debug
+import utils.Debug as Debug
 from utils.helper_functions import error_writer, make_response_strjson, make_result_strjson, write_data
 from utils.Types import RequestType, ResultType
 from utils.Result import Result

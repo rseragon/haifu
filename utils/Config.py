@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import configparser
 from datetime import datetime
-from utils.Debug import Debug
+import utils.Debug as Debug
 
 """
 The main config module

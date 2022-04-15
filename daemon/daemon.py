@@ -1,5 +1,5 @@
 import sys
-from utils.Debug import Debug
+import utils.Debug as Debug
 import utils.Config as Config
 import signal
 import os
@@ -16,7 +16,7 @@ def handle_sigint(signum: int, fram) -> None:
     clean_up()
     os._exit(0)
 
-def main(daemon: bool=True, DebugLevel: int=2) -> None:
+def main(daemon: bool=False, DebugLevel: int=2) -> None:
     """
     Starts the daemon which controls the connections
     and the communication
@@ -39,6 +39,7 @@ def main(daemon: bool=True, DebugLevel: int=2) -> None:
         sighandler.start()
         sighandler.sigint = handle_sigint
 
+        Debug.debug("PID: " + str(os.getpid()))
         start()
             
     else:

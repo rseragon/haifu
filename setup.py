@@ -4,7 +4,7 @@ Sets up haifu for different OSes
 
 import platform
 import os
-from utils.Debug import Debug
+import utils.Debug as Debug
 
 PLATFORM_ID = platform.freedesktop_os_release().get("ID", "").lower()
 PLATFORM_ID_LIKE = platform.freedesktop_os_release().get("ID_LIKE", "").lower()
