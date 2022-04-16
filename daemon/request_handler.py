@@ -147,7 +147,6 @@ async def add_peer(peer_info: tuple[str, int], writer: StreamWriter):
         # TODO: Error
         Debug.debug(f"Host Down: {peer}")
         return
-    # TODO: Doesn't work
     await peer.async_populate_info()
     add_to_db(peer)
     Debug.debug(f"[Peer] added new peer: {peer_info}")

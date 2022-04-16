@@ -55,12 +55,15 @@ class Peer:
         """
         Asks the peer for the requred info
         """
+        Debug.info("[USELESS] Populating info")
         req = Request({"Type": RequestType.PEER_INFO}).to_json()
         try:
             reader, writer = await asyncio.open_connection(self.host, self.port)
         except ConnectionRefusedError:
             Debug.error(0, f"[Connection] Failed to connect ({self.host}, self.port)")
             return False
+
+        await async_write_data(req, writer)
 
         result = await async_read_data(reader)
 

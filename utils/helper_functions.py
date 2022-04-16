@@ -48,8 +48,8 @@ def dict_from_str(data: str) -> Any:
 async def async_read_data(reader: StreamReader) -> str:
     str_data = ""
     byte_data = b""
-    read_content_length = await reader.readline()
-    data_len = int(read_content_length[:-1])  # Get's the content len in int
+    read_content_length = await reader.readuntil(b'\n')
+    data_len = int(read_content_length)  # Get's the content len in int
 
     while len(str_data) < data_len:
         byte_data = await reader.read(1)
@@ -68,7 +68,8 @@ async def async_write_data(data: str, writer: StreamWriter):
     byte_data = data.encode("gbk")
 
     # Write the length of data to send
-    writer.write((str(write_len) + "\n").encode("gbk"))
+    writer.write((str(write_len)).encode("gbk"))
+    writer.write(b'\n')
     await writer.drain()
 
     # write the data
