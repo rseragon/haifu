@@ -23,16 +23,16 @@ CONFIG_NAME: str = ""
 LOG_FILE = None  # TODO: Type annotate
 CONFIG_FILE = None
 PID_FILE: str = ""
+DB_FILE: str = ""
 
 PID: int = -1
-
 HOST: str = ""
 PORT: int = -1
 
 
 def populate_dirs() -> None:
 
-    global DIR_POPULATED, CONFIG_DIR, CACHE_DIR, CONFIG_NAME, LOG_DIR, PROJECT_NAME
+    global DIR_POPULATED, CONFIG_DIR, CACHE_DIR, CONFIG_NAME, LOG_DIR, PROJECT_NAME, DB_FILE
 
     config_dir = appdirs.user_config_dir(PROJECT_NAME)
     log_dir = appdirs.user_log_dir(PROJECT_NAME)
@@ -60,6 +60,7 @@ def populate_dirs() -> None:
     DIR_POPULATED = True
     config_name: str = str((Path(CONFIG_DIR) / "config.ini").absolute())
     CONFIG_NAME = config_name
+    DB_FILE = str((Path(CONFIG_DIR) / "peers.db").absolute())
     if not Path(config_name).exists():
         _basic_config()
 
@@ -186,3 +187,15 @@ def remove_pidfile() -> None:
         os.remove(get_pidfile())
     finally:  # Don't care if file doesn't exist
         pass
+
+
+def get_db() -> str:
+    """
+    Gets the peer db file location
+    """
+    global DB_FILE, DIR_POPULATED
+
+    if not DIR_POPULATED:
+        populate_dirs()
+
+    return DB_FILE

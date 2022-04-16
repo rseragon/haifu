@@ -8,26 +8,32 @@ class RequestType(IntEnum):
     2. Get pkg info[Local]
     3. send package to the requester[External]
     4. fetch package[Local -> External]
+    5. Add peer[local -> external]
+    6. Peer info[writes the current daemon info to writer]
     Local = cli <-> daemon
     External = daemon <-> daemon
 
     """
-    INVALID   = -1
-    QUIT      = 0 # this is dummy, Will be handled by signals
-    SEARCH    = 1
-    GET_INFO  = 2
-    SEND_PKG  = 3
+
+    INVALID = -1
+    QUIT = 0  # this is dummy, Will be handled by signals
+    PING = 0  # If 0 is sent to another daemon, then it acts a ping
+    SEARCH = 1
+    GET_INFO = 2
+    SEND_PKG = 3
     FETCH_PKG = 4
-    ADD_PEER  = 5
+    ADD_PEER = 5
+    PEER_INFO = 6
 
     REQ_MIN_NUM = 0
-    REQ_MAX_NUM = 5
+    REQ_MAX_NUM = 6
 
 
 class ResultType(IntEnum):
     """
     Result type specification
     """
+
     SUCCESSFUL = 1
     FAILED = 0
     ERROR = -1

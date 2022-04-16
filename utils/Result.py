@@ -1,5 +1,6 @@
 from utils.Types import ResultType
 import json
+from typing import Any
 
 """
 Result data skeleton
@@ -23,10 +24,10 @@ class Result:
 
         self.payload: dict = res.get("Payload", None)
 
-        self.data: str = ""
+        self.data: Any
         self.error: str = ""
         if self.payload is not None:
-            self.data: str = self.payload.get("Data", "")
+            self.data: Any = self.payload.get("Data", "")
             self.error: str = self.payload.get("Error", "")
 
     def isInvalid(self) -> bool:
@@ -36,7 +37,7 @@ class Result:
             or (self.type < ResultType.RES_MIN_NUM)
         )
 
-    def getData(self) -> str:
+    def getData(self) -> Any:
         return self.data
 
     def getType(self) -> int:
@@ -46,3 +47,6 @@ class Result:
         return json.dumps(
             {"Result": self.type, "Payload": {"Data": self.data, "Error": self.error}}
         )
+
+    def __repr__(self) -> str:
+        return f'["Result": {self.type}, "Payload": ["Data": {self.data}, "Error": {self.error}]]'

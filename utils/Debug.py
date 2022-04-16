@@ -3,6 +3,8 @@ from collections.abc import Callable
 from utils.colors import print_red, print_yellow, print_cyan
 from pprint import pprint
 from utils.Config import get_logfile as LOG_FILE  # Fix cirular import
+from typing import Any
+
 
 DEBUG = True
 INFO = True
@@ -19,7 +21,7 @@ def set_level(level: int) -> None:
     pass
 
 
-def error(error_code: int, msg: str, atexit: Callable[[], None] = None) -> None:
+def error(error_code: int, msg: Any, atexit: Callable[[], None] = None) -> None:
     """
     prints message
     error_code:
@@ -27,7 +29,7 @@ def error(error_code: int, msg: str, atexit: Callable[[], None] = None) -> None:
         1  -> print message and exit
        -1  -> call a function before quit
     """
-    error_msg = "[ERROR] " + msg
+    error_msg = "[ERROR] " + str(msg)
     LOG_FILE().writelines(error_msg + "\n")
     LOG_FILE().flush()
     print_red(error_msg)
@@ -39,21 +41,21 @@ def error(error_code: int, msg: str, atexit: Callable[[], None] = None) -> None:
         sys.exit()
 
 
-def debug(msg: str) -> None:
+def debug(msg: Any) -> None:
 
     global DEBUG
 
-    debug_msg = "[DEBUG] " + msg
+    debug_msg = "[DEBUG] " + str(msg)
     LOG_FILE().writelines(debug_msg + "\n")
     LOG_FILE().flush()
     if DEBUG:
         print_yellow(debug_msg)
 
 
-def info(msg: str) -> None:
+def info(msg: Any) -> None:
     global INFO
 
-    info_msg = "[INFO] " + msg
+    info_msg = "[INFO] " + str(msg)
     LOG_FILE().writelines(info_msg + "\n")
     LOG_FILE().flush()
     if INFO:

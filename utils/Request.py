@@ -6,9 +6,13 @@ Reqeust json skelton
 {
     "Type": "NUMBER",
     "Payload": {
+        "info": "STR"  # Contains some random data
+
+        "host": "STR",
+        "port": "NUMBER"
+
         "Package Name": "NAME",
-        "Peer Name": "NAME",
-        "PUID": "Peer Unique ID"
+
     }
 }
 """
@@ -24,14 +28,16 @@ class Request:
 
         self.payload: dict = req.get("Payload", None)
 
-        self.peer_name: str = ""
-        self.peerid: str = ""
+        self.host: str = ""
+        self.port: int = -1
         self.package_name: str = ""
+        self.info: str = ""
 
         if self.payload is not None:
-            self.peer_name: str = self.payload.get("Peer Name", "")
-            self.peerid: str = self.payload.get("PUID", "")
+            self.host: str = self.payload.get("host", "")
+            self.port: int = self.payload.get("port", "")
             self.package_name: str = self.payload.get("Package Name", "")
+            self.info: str = self.payload.get("info", "")
 
     def isInvalid(self) -> bool:
         return (
@@ -40,26 +46,31 @@ class Request:
             or (self.type < RequestType.REQ_MIN_NUM)
         )
 
-    def hasData(self) -> bool:
+    def hasPayload(self) -> bool:
         return self.payload is not None
+
+    def hasInfo(self) -> bool:
+        return self.info != ""
 
     def getType(self) -> int:
         return self.type
 
-    def getPeerName(self) -> str:
-        return self.peer_name
-
-    def getPeerId(self) -> str:
-        return self.peerid
+    def getHostPort(self) -> tuple[str, int]:
+        return (self.host, self.port)
 
     def getPackageName(self) -> str:
         return self.package_name
+
+    def getInfo(self) -> str:
+        return self.info
 
     def to_json(self) -> str:
         return json.dumps({
             "Type": self.type,
             "Payload": {
+                "info": self.info,
+                "host": self.host,
+                "port": self.port,
                 "Pacakge Name": self.package_name,
-                "Peer Name": self.peer_name
                 }
             })

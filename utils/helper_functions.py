@@ -6,14 +6,14 @@ from typing import Any
 from utils.Types import ResultType
 
 
-def make_response_strjson(code_type: int, data: dict) -> str:
+def make_response_strjson(code_type: int, data: Any) -> str:
     """
     Takes in a dict and returns a bytes type request json data
     """
     return json.dumps({"Type": code_type, "Payload": data})
 
 
-def make_result_strjson(result_type: int, data: dict, error: str = "") -> str:
+def make_result_strjson(result_type: int, data: Any, error: str = "") -> str:
     """
     Takes in a dict and returns a byptes type json data
     """
@@ -45,7 +45,7 @@ def dict_from_str(data: str) -> Any:
     return json_data[0] if (isinstance(json_data, list)) else json_data
 
 
-async def read_data(reader: StreamReader) -> str:
+async def async_read_data(reader: StreamReader) -> str:
     str_data = ""
     byte_data = b""
     read_content_length = await reader.readline()
@@ -60,7 +60,7 @@ async def read_data(reader: StreamReader) -> str:
     return str_data
 
 
-async def write_data(data: str, writer: StreamWriter):
+async def async_write_data(data: str, writer: StreamWriter):
     """
     Writes the data to socket
     """
@@ -76,12 +76,12 @@ async def write_data(data: str, writer: StreamWriter):
     await writer.drain()
 
 
-async def error_writer(msg: str, writer: StreamWriter) -> None:
+async def async_error_writer(msg: str, writer: StreamWriter) -> None:
     peername = writer.get_extra_info("peername")
     Debug.error(0, f"[Connection {peername} ]: " + msg)
     error_message = make_result_strjson(ResultType.ERROR, {}, msg)
     # error_message = make_strjson(-1, msg)
-    await write_data(error_message, writer)
+    await async_write_data(error_message, writer)
 
 
 def send_data(data: str, host: str, port: int) -> str:
@@ -94,14 +94,17 @@ def send_data(data: str, host: str, port: int) -> str:
     bytes_data = data.encode('gbk')
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
-        # Send data
+        # Connect
         try:
             sock.connect((host, port))
         except ConnectionRefusedError as cre:
-            Debug.error(1, "Failed to connect to host ({}, {})".format(host, port))
-        sock.send(str(len(bytes_data)).encode('gbk')) # Send length
-        sock.send(b'\n') # A new line
-        sock.send(bytes_data) # the real data
+            Debug.error(0, "Failed to connect to host ({}, {})".format(host, port))
+            return ""
+
+        # Send data
+        sock.sendall(str(len(bytes_data)).encode('gbk')) # Send length
+        sock.sendall(b'\n')  # A new line
+        sock.sendall(bytes_data)  # the real data
 
         # Receive data
         while True:
@@ -111,4 +114,4 @@ def send_data(data: str, host: str, port: int) -> str:
 
     result = resp.decode('utf-8')
 
-    return result[result.find('\n'):]
+    return result[result.find('\n'):]  # removes the first line which contains the number
