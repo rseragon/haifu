@@ -69,7 +69,7 @@ class Peer:
     async def async_populate_info(self) -> bool:
         """
         Asks the peer for the requred info
-        TODO: check if already in db
+        TODO: check if already in db, and update info
         """
         host, port = Config.get_hostport()
         Debug.info("[USELESS] Populating info")

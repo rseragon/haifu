@@ -259,6 +259,7 @@ async def send_info(req_obj: Request, writer: StreamWriter):
 
     if resp.getType() == 1:  # Daemon!!
         Debug.debug(f"[Peer] ({host}, {port}) is a Daemon!")
+        await peer.async_populate_info()
         add_to_db(peer)
     else:
         Debug.debug(f"[Peer] ({host}, {port}) is not a daemon")
