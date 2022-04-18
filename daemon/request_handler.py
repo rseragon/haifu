@@ -244,7 +244,7 @@ async def send_info(writer: StreamWriter):
 
     peer = Peer(host, port)
 
-    if peer._create_conn() is False:
+    if await peer._create_conn() is False:
         Debug.debug(f"Failed to check if peer was daemon: ({host}, {port})")
         return
 
