@@ -1,8 +1,13 @@
+from typing import Optional
 from utils.Peer import Peer
 from db.DBInterface import DatabaseInterface
 import socket
 import platform
 import utils.Debug as Debug
+from utils.Request import Request
+from utils.Result import Result
+from utils.Types import RequestType, ResultType
+from utils.helper_functions import async_read_data, make_response_strjson, async_write_data, dict_from_str
 
 
 def add_to_db(peer: Peer):
@@ -14,7 +19,6 @@ def add_to_db(peer: Peer):
     Debug.info(f"[USELESS] {peer}")
 
     db.insert_peer(peer)
-    get_peer_list()
 
 
 def get_peer_list():
@@ -23,8 +27,11 @@ def get_peer_list():
     TODO
     """
     db = DatabaseInterface()
-    Debug.info("[USELESS] displaying peerlist")
-    db.display_all()
+    peers: list[Peer] = []
+    for peer in db.get_peers():
+        peers.append(peer)
+
+    return peers
 
 def current_daemon_info() -> dict:
     name = socket.gethostname() 
@@ -44,3 +51,44 @@ def current_daemon_info() -> dict:
             "arch": arch,
             "os": os_id,
             "distro": distro}
+
+
+async def get_peer_with_package(pkg_name: str, peers: list[Peer]) -> Optional[Peer]:
+    """
+    Returns a list of peers which have the package
+    """
+    alive_peers = [peer for peer in peers if await peer.async_is_alive()]
+
+    Debug.info(f"[USELESS] alive_peers: {alive_peers}")
+
+    if len(alive_peers) < 1:
+        Debug.debug("[Peer] No peers alive")
+        return None
+
+    peers_with_pkg  = [peer for peer in alive_peers if await has_package(pkg_name, peer)]
+
+    Debug.info(f"[USELESS] peers_with_pkg: {peers_with_pkg}")
+
+    if len(peers_with_pkg) < 0:
+        Debug.debug("[Peer] No peer with package")
+        return None
+
+
+async def has_package(pkg_name: str, peer: Peer) -> bool:
+    """
+    Asks the peer if he has the package
+    """
+
+    reader, writer = await peer.connect()
+
+    req = make_response_strjson(RequestType.SEND_PKG, {"Package Name": pkg_name})
+    await async_write_data(req, writer)
+
+    res = Result(dict_from_str(await async_read_data(reader)))
+
+    if res.getType() == ResultType.FAILED:
+        return False
+
+    data: list[dict] = res.getData()
+
+    Debug.info(f"[USELESS] data: {data}")

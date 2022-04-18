@@ -48,5 +48,5 @@ class Package(dict):
         }
     """
 
-    def toJson(self):
+    def toJson(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__)

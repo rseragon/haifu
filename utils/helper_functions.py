@@ -45,6 +45,7 @@ def dict_from_str(data: str) -> Any:
     return json_data[0] if (isinstance(json_data, list)) else json_data
 
 
+#TODO: Try except
 async def async_read_data(reader: StreamReader) -> str:
     str_data = ""
     byte_data = b""
@@ -116,3 +117,16 @@ def send_data(data: str, host: str, port: int) -> str:
     result = resp.decode('utf-8')
 
     return result[result.find('\n'):]  # removes the first line which contains the number
+
+
+async def send_file(file_location: str, writer: StreamWriter) -> None:
+    """
+    sends file to writer
+    """
+    pass
+
+async def recv_file(reader: StreamReader) -> str:
+    """
+    recevices the files and returns the stored locations
+    """
+    pass

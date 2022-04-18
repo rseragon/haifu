@@ -13,12 +13,14 @@ Reqeust json skelton
 
         "Package Name": "NAME",
 
+        "index": "NUMBER"  # Used for send_package
+
     }
 }
 """
 
 
-class Request:
+class Request(dict):
     def __init__(self, req: dict):
         """
         Takes in the request dict and
@@ -32,12 +34,14 @@ class Request:
         self.port: int = -1
         self.package_name: str = ""
         self.info: str = ""
+        self.index: int = -1
 
         if self.payload is not None:
             self.host: str = self.payload.get("host", "")
             self.port: int = self.payload.get("port", "")
             self.package_name: str = self.payload.get("Package Name", "")
             self.info: str = self.payload.get("info", "")
+            self.index: int = self.payload.get("index", "")
 
     def isInvalid(self) -> bool:
         return (
@@ -64,13 +68,8 @@ class Request:
     def getInfo(self) -> str:
         return self.info
 
-    def to_json(self) -> str:
-        return json.dumps({
-            "Type": self.type,
-            "Payload": {
-                "info": self.info,
-                "host": self.host,
-                "port": self.port,
-                "Pacakge Name": self.package_name,
-                }
-            })
+    def getIndex(self) -> int:
+        return self.index
+
+    def toJson(self) -> str:
+        return json.dumps(self, default=lambda o: o.__dict__)

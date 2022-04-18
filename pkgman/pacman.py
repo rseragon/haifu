@@ -66,8 +66,15 @@ def check_installed(pkg_name: str) -> bool:
 
 
 
-def get_file_location() -> str:
+def get_file_location(package: Package) -> str:
     """
     Returns the location of the file in cache
     """
     return ""
+
+
+def in_cache(pkg_name: str) -> bool:
+    """
+    Checks if the given package is in cache
+    """
+    return True

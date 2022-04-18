@@ -3,7 +3,11 @@ import os
 from pathlib import Path
 import configparser
 from datetime import datetime
-import utils.Debug as Debug
+# from utils.Debug import debug
+
+def debug(msg):
+    from utils.Debug import debug
+    debug(msg)
 
 """
 The main config module
@@ -95,7 +99,7 @@ def _basic_config() -> None:
 
     global CONFIG_NAME, CONFIG_DIR
 
-    Debug.debug("file not found, Populating with default config")
+    debug("file not found, Populating with default config")
     config_name: str = str((Path(CONFIG_DIR) / "config.ini").absolute())
     CONFIG_NAME = config_name
 
@@ -126,7 +130,7 @@ def get_hostport() -> tuple[str, int]:
     if HOST != "":
         return (HOST, PORT)
 
-    Debug.debug("config file name: " + CONFIG_NAME)
+    debug("config file name: " + CONFIG_NAME)
 
     parser = configparser.ConfigParser()
     parser.read_file(open(CONFIG_NAME, "r"))
@@ -135,7 +139,7 @@ def get_hostport() -> tuple[str, int]:
         HOST = parser["daemon"]["host"]
         PORT = int(parser["daemon"]["port"])
     else:
-        Debug.debug("'daemon' section not found in config file")
+        debug("'daemon' section not found in config file")
         _basic_config()
         parser.read_file(open(CONFIG_NAME, "r"))
         HOST = parser["daemon"]["host"].strip()

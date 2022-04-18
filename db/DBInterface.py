@@ -1,3 +1,4 @@
+from typing import Iterator
 from db.DBHandler import DatabaseHandler
 import utils.Config as Config
 import utils.Debug as Debug
@@ -52,7 +53,22 @@ class DatabaseInterface:
             )
         return True
 
+    def get_peers(self) -> Iterator[Peer]:
+        """
+        Returns all the peers present in the db
+        TODO: refactor into generator
+        """
+        with DatabaseInterface.DB_CONN as cursor:
+            cursor.execute("SELECT * FROM peers")
+            peer_list = cursor.fetchall()
+            for peer in peer_list:
+                peer_info = Peer(*peer[1:])
+                yield peer_info
+
     def display_all(self):
+        """
+        Only for debugging
+        """
         with DatabaseInterface.DB_CONN as cursor:
             peers = cursor.execute("""SELECT * FROM peers""").fetchall()
             Debug.info(peers)

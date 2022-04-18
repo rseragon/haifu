@@ -31,3 +31,8 @@ def get_file_location() -> str:
     return ""
 
 
+def in_cache(pkg_name: str) -> bool:
+    """
+    Checks if the given package is in cache
+    """
+    pass
