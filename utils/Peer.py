@@ -44,6 +44,7 @@ class Peer:
     async def async_is_alive(self) -> bool:
         """
         Ping the daemon and check if it alive
+        TODO: Update peer info, for discrepency
         """
         resp = make_response_strjson(
             RequestType.PING, {"info": "Ping!!!"}
@@ -70,9 +71,11 @@ class Peer:
         TODO: check if already in db
         """
         Debug.info("[USELESS] Populating info")
-        req = Request({"Type": RequestType.PEER_INFO}).toJson()
+        # req = Request({"Type": RequestType.PEER_INFO}).toJson() # TODO: Doesn't work
+        req = make_response_strjson(RequestType.PEER_INFO, {})
+        Debug.info(f"[USELESS] req: {req}")
 
-        reader, writer = await self._create_conn()
+        reader, writer = await self.connect()
         await async_write_data(req, writer)
 
         result = await async_read_data(reader)
@@ -95,7 +98,7 @@ class Peer:
         returns connection reader and writer for peer
         """
         if self._connected is not False:
-            return self._reader, self._writer
+            return True
 
         try:
             self._reader, self._writer = await asyncio.open_connection(

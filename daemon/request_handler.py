@@ -229,6 +229,7 @@ async def send_info(writer: StreamWriter):
     """
     Sends the current daemon info to asker
     and adds the asker if it a deamon
+    TODO: Write to writer about success
     """
     info = current_daemon_info()
     res = make_result_strjson(ResultType.SUCCESSFUL, info)
@@ -241,19 +242,19 @@ async def send_info(writer: StreamWriter):
     Debug.debug(f"[Peer] Checking if ({host}, {port}) is a daemon")
     check_daemon = make_response_strjson(RequestType.PING, {})
 
-    try:
-        r, w = await asyncio.open_connection(host, port)
-        await async_write_data(check_daemon, w)
+    peer = Peer(host, port)
 
-        resp = Result(dict_from_str(await async_read_data(r)))
+    if peer._create_conn() is False:
+        Debug.debug(f"Failed to check if peer was daemon: ({host}, {port})")
+        return
 
-        if resp.getType() == 1:  # Daemon!!
-            Debug.debug(f"[Peer] ({host}, {port}) is a Daemon!")
-            await add_peer(host, port)
-    except (
-        ConnectionAbortedError,
-        ConnectionResetError,
-        ConnectionRefusedError,
-        ConnectionError,
-    ) as ce:
-        Debug.debug(f"[Peer] ({host}, {port}) is not a daemon: " + str(ce))
+    r, w = await peer.connect()
+
+    await async_write_data(check_daemon, w)
+    resp = Result(dict_from_str(await async_read_data(r)))
+
+    if resp.getType() == 1:  # Daemon!!
+        Debug.debug(f"[Peer] ({host}, {port}) is a Daemon!")
+        add_to_db(peer)
+    else:
+        Debug.debug(f"[Peer] ({host}, {port}) is not a daemon")

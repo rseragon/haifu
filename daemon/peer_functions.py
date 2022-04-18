@@ -8,6 +8,7 @@ from utils.Request import Request
 from utils.Result import Result
 from utils.Types import RequestType, ResultType
 from utils.helper_functions import async_read_data, make_response_strjson, async_write_data, dict_from_str
+import json
 
 
 def add_to_db(peer: Peer):
@@ -16,7 +17,7 @@ def add_to_db(peer: Peer):
     Adds the peer to the database
     """
     db = DatabaseInterface()
-    Debug.info(f"[USELESS] {peer}")
+    Debug.info(f"[USELESS] peer {peer}")
 
     db.insert_peer(peer)
 
@@ -91,4 +92,7 @@ async def has_package(pkg_name: str, peer: Peer) -> bool:
 
     data: list[dict] = res.getData()
 
-    Debug.info(f"[USELESS] data: {data}")
+    if len(data) < 1:  # No packages found in peer
+        return False
+
+    Debug.info(f"[USELESS] data: {data[0]}")
