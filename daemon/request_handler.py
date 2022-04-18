@@ -101,8 +101,8 @@ async def process_request(
         Debug.info(f"[USELESS] ({host}, {port})")
         await add_peer((host, int(port)), writer)
     elif request_type == RequestType.PEER_INFO:
-        # Write current daemon info to writer
-        await send_info(writer)
+        # Write current daemon info
+        await send_info(req, writer)
 
     await writer.drain()
 
@@ -220,12 +220,12 @@ async def add_peer(peer_info: tuple[str, int], writer: StreamWriter):
         # TODO: Error
         Debug.debug(f"Host Down: {peer}")
         return
-    await peer.async_populate_info()  # This acts the 2-way handshake
+    await peer.async_populate_info()  
     add_to_db(peer)
     Debug.debug(f"[Peer] added new peer: {peer_info}")
 
 
-async def send_info(writer: StreamWriter):
+async def send_info(req_obj: Request, writer: StreamWriter):
     """
     Sends the current daemon info to asker
     and adds the asker if it a deamon
@@ -237,8 +237,12 @@ async def send_info(writer: StreamWriter):
     # Send info
     await async_write_data(res, writer)
 
-    # Check if the asker is a daemon(Via a new connection)
-    host, port = writer.get_extra_info("peername")
+    if req_obj.host == "":
+        return
+
+    # The requester is probably a daemon 
+    host = req_obj.host
+    port = req_obj.port
     Debug.debug(f"[Peer] Checking if ({host}, {port}) is a daemon")
     check_daemon = make_response_strjson(RequestType.PING, {})
 

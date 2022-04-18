@@ -14,6 +14,7 @@ import utils.Debug as Debug
 from utils.Result import Result
 from asyncio import StreamReader, StreamWriter
 from typing import Any
+import utils.Config as Config
 
 
 class Peer:
@@ -70,9 +71,10 @@ class Peer:
         Asks the peer for the requred info
         TODO: check if already in db
         """
+        host, port = Config.get_hostport()
         Debug.info("[USELESS] Populating info")
         # req = Request({"Type": RequestType.PEER_INFO}).toJson() # TODO: Doesn't work
-        req = make_response_strjson(RequestType.PEER_INFO, {})
+        req = make_response_strjson(RequestType.PEER_INFO, {"host": host, "port": port})# This acts the 2-way handshake)
         Debug.info(f"[USELESS] req: {req}")
 
         reader, writer = await self.connect()
@@ -105,8 +107,8 @@ class Peer:
                 self.host, self.port
             )
             self._connected = True
-        except ConnectionRefusedError:
-            Debug.error(0, f"[Connection] Failed to connect ({self.host}, self.port)")
+        except ConnectionRefusedError as ce:
+            Debug.error(0, f"[Connection] Failed to connect ({self.host}, {self.port}) " + str(e))
             return False
 
         return True
