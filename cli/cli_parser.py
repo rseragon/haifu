@@ -9,11 +9,16 @@ from utils.Types import RequestType
 import utils.Debug as Debug
 import utils.Config as Config
 
+from cli.cli_helpers import check_alive, print_usage
 
 def parse_cliargs(args: list) -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('subcmd', metavar='SUBCOMMAND')
-    parser.add_argument('action', metavar='ACTION', nargs="?")
+
+    if len(args) < 2:
+        print_usage()
+
+    parser = argparse.ArgumentParser(description="A Distributed meta Package Manager")
+    parser.add_argument('subcmd', metavar='SUBCOMMAND', help = "daemon, version, search, install, info")
+    parser.add_argument('action', metavar='ACTION', nargs="?", help="start, stop, <package-name>, (host, port)")
 
     cli_args = parser.parse_args()
 
@@ -22,7 +27,11 @@ def parse_cliargs(args: list) -> None:
     Debug.debug(f"[CLI] SUBCOMMAND: {cli_args.subcmd}")
     Debug.debug(f"[CLI] ACTION: {cli_args.action}")
 
-    # TODO: Check if daemon is alive
+    if cli_args.subcmd != 'daemon':
+        if check_alive() is False:
+            Debug.error(1, "Unable to connect to daemon")
+ 
+
 
     if cli_args.subcmd == 'daemon':
         if cli_args.action is None:
@@ -45,17 +54,18 @@ def parse_cliargs(args: list) -> None:
             Debug.error(1, f"Action not provided\nUsage: {sys.argv[0]} search <package_name>")
             return
         else:
-            resp = send_data(make_response_strjson(RequestType.SEARCH, {"Package Name": cli_args.action}), dhost, dport)
+            resp = send_data(make_response_strjson(RequestType.SEARCH, cli_args.action), dhost, dport)
             Debug.debug(f"[CLI] {resp}")
 
     elif cli_args.subcmd == 'install':
         pass
+
     elif cli_args.subcmd == 'info':
         if cli_args.action is None:
             Debug.error(1, f"Action not provided\nUsage: {sys.argv[0]} info <package_name>")
             return
         else:
-            resp = send_data(make_response_strjson(RequestType.GET_INFO, {"Package Name": cli_args.action}), dhost, dport)
+            resp = send_data(make_response_strjson(RequestType.GET_INFO, cli_args.action), dhost, dport)
             Debug.debug(f"[CLI] {resp}")
 
     else:

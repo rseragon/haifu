@@ -9,9 +9,9 @@ license = "MIT"
 python = "^3.10"
 colorama = "^0.4.4"
 appdirs = "^1.4.4"
-pyalpm = "^0.10.6"
 daemoniker = "^0.2.3"
 aiofiles = "^0.8.0"
+setuptools = "^62.1.0"
 
 [tool.poetry.dev-dependencies]
 flake8-bugbear = "^22.3.23"

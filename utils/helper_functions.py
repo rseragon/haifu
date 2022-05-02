@@ -121,7 +121,7 @@ async def async_error_writer(msg: str, writer: StreamWriter) -> None:
     await async_write_data(error_message, writer)
 
 
-def send_data(data: str, host: str, port: int) -> str:
+def send_data(data: str, host: str, port: int, get_data: bool = True) -> str:
     """
     Sends data to (host, port) and returns response
     using Block socket connection
@@ -130,12 +130,16 @@ def send_data(data: str, host: str, port: int) -> str:
 
     bytes_data = data.encode("gbk")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(10)
 
         # Connect
         try:
             sock.connect((host, port))
         except ConnectionRefusedError as cre:
-            Debug.error(0, "Failed to connect to host ({}, {})".format(host, port))
+            Debug.debug("Failed to connect to host ({}, {})".format(host, port))
+            return ""
+        except TimeoutError:
+            Debug.debug("Failed to connect to host ({}, {}): Connection timed out".format(host, port))
             return ""
 
         # Send data
@@ -143,18 +147,25 @@ def send_data(data: str, host: str, port: int) -> str:
         sock.sendall(b"\n")  # A new line
         sock.sendall(bytes_data)  # the real data
 
-        # Receive data
-        while True:
-            temp = sock.recv(1)
-            if not temp:
-                break
-            resp += temp
+        if not get_data:
+            return ""
 
-    result = resp.decode("utf-8")
+        try:
+            # Receive data
+            while True:
+                temp = sock.recv(1)
+                if not temp:
+                    break
+                resp += temp
 
-    return result[
-        result.find("\n") :
-    ]  # removes the first line which contains the number
+            result = resp.decode("utf-8")
+
+            return result[
+                result.find("\n") :
+            ]  # removes the first line which contains the number
+        except Exception as e:
+            Debug.error(0, f"Failed to get data from ({host}, {port}): {str(e)}")
+            return ""
 
 
 async def send_file(file_location: str, writer: StreamWriter) -> None:
