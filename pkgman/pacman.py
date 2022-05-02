@@ -1,7 +1,9 @@
+from glob import glob
 import pyalpm
 from pathlib import Path
 import utils.Debug as Debug
-from utils.Package import Package
+# from utils.Package import Package  # Ciruclar import
+from typing import Any
 
 PACMAN_DIR = '/var/lib/pacman'
 CACHE_DIR  = '/var/cache/pacman/pkg'
@@ -42,12 +44,13 @@ def search_pkg(pkg_name: str) -> list[str]:
 
     return pkg_list
 
-def get_info(pkg_name: str) -> list[Package]:
+def get_info(pkg_name: str) -> list[Any]:
     """
     Similar to search_pkg but returns
     info about the package like MD5, depnds,
     arch etc.
     """
+    from utils.Package import Package
     pkg_info: list[Package] = []
 
     for db in SYNCDBS:
@@ -65,16 +68,52 @@ def check_installed(pkg_name: str) -> bool:
     return False
 
 
+#def pkg_file_name(pkg: Package) -> str:
+def pkg_file_name(pkg: Any) -> str:
 
-def get_file_location(package: Package) -> str:
+    if not pkg:
+        return ""
+
+    name = pkg.name
+    ver = pkg.ver
+    arch = pkg.arch
+
+    if name == "" or ver == "" or arch == "":
+        return ""
+
+    return f"{name}-{ver}-{arch}.pkg.tar.zst"
+
+
+def get_file_location(package: Any) -> str:
     """
     Returns the location of the file in cache
     """
-    return ""
+    from utils.Package import Package
+
+    if not in_cache(package.name):
+        return ""
+
+    paths = glob(CACHE_DIR + "/" + pkg_file_name(package))
+
+    if len(paths) < 1:
+        Debug.debug(f"[Package] {package.name} is not found")
+        return ""
+
+    return paths[0]
+
 
 
 def in_cache(pkg_name: str) -> bool:
     """
     Checks if the given package is in cache
     """
-    return True
+    found = False
+
+    for package in LOCALDB_HANDLE.pkgcache:
+        if pkg_name == package.name:
+            found = True
+            break
+
+    return found
+
+

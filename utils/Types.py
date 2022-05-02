@@ -21,12 +21,14 @@ class RequestType(IntEnum):
     SEARCH = 1
     GET_INFO = 2
     SEND_PKG = 3
-    FETCH_PKG = 4
-    ADD_PEER = 5
-    PEER_INFO = 6
+    PKG_INDEX = 4  # Used when getting index of packge from the received list of packages
+    FETCH_PKG = 5
+    ADD_PEER = 6
+    PEER_INFO = 7
+    FILE_INFO = 8  # Gets the file file info like name and size
 
     REQ_MIN_NUM = 0
-    REQ_MAX_NUM = 6
+    REQ_MAX_NUM = 8
 
 
 class ResultType(IntEnum):

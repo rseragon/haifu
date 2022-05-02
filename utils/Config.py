@@ -203,3 +203,11 @@ def get_db() -> str:
         populate_dirs()
 
     return DB_FILE
+
+def get_cachedir() -> str:
+    global CACHE_DIR, DIR_POPULATED
+
+    if not DIR_POPULATED:
+        populate_dirs()
+
+    return CACHE_DIR

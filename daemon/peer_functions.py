@@ -58,6 +58,7 @@ async def get_peer_with_package(pkg_name: str, peers: list[Peer]) -> Optional[Pe
     """
     Returns a list of peers which have the package
     """
+    # Get all the alive peers, this also makes readers and writers with them
     alive_peers = [peer for peer in peers if await peer.async_is_alive()]
 
     Debug.info(f"[USELESS] alive_peers: {alive_peers}")
@@ -66,33 +67,71 @@ async def get_peer_with_package(pkg_name: str, peers: list[Peer]) -> Optional[Pe
         Debug.debug("[Peer] No peers alive")
         return None
 
+    # Get all the peers with the package
     peers_with_pkg  = [peer for peer in alive_peers if await has_package(pkg_name, peer)]
 
     Debug.info(f"[USELESS] peers_with_pkg: {peers_with_pkg}")
 
-    if len(peers_with_pkg) < 0:
+    if len(peers_with_pkg) < 1:
         Debug.debug("[Peer] No peer with package")
         return None
+
+    # Get the least latency peer 
+    low_latency_peer = await peer_latency(peers_with_pkg)
+
+    return low_latency_peer
 
 
 async def has_package(pkg_name: str, peer: Peer) -> bool:
     """
-    Asks the peer if he has the package
+    Asks the peer if it has the package
     """
 
-    reader, writer = await peer.connect()
+    if await peer.connect() is False:
+        Debug.error(0, f"[Peer] failed to connect to: ({peer.host}, {peer.port})")
+        return False
 
-    req = make_response_strjson(RequestType.SEND_PKG, {"Package Name": pkg_name})
+    reader, writer = peer.get_reader_writer()
+
+    req = make_response_strjson(RequestType.SEND_PKG, pkg_name)
     await async_write_data(req, writer)
 
-    res = Result(dict_from_str(await async_read_data(reader)))
+    res_data = await async_read_data(reader)
+    """
+    data_len = int(await reader.readline())
+    res_data = ""
+    while len(res_data) < data_len:
+        curr_data = await reader.read(10)
+        res_data += curr_data.decode('utf-8')
+    """
+    Debug.info(f"[USELESS] res_str: {res_data}")
+
+    res = Result(dict_from_str(res_data))
 
     if res.getType() == ResultType.FAILED:
+        Debug.debug(f"[Connection] Failed result: {res.getType()}")
         return False
 
     data: list[dict] = res.getData()
+    Debug.info(f"[USELESS] data: {data}")
 
     if len(data) < 1:  # No packages found in peer
         return False
 
-    Debug.info(f"[USELESS] data: {data[0]}")
+    for pkgIdx in range(len(data)):
+        pkg_dict: str = data[pkgIdx]
+        if json.loads(pkg_dict).get("name", "") == pkg_name:
+            peer._pkg_index = pkgIdx
+            return True
+
+    return False
+
+async def peer_latency(peers: list[Peer]) -> Optional[Peer]:
+    """
+    Returns the peer with lowest latency
+    TODO
+    """
+    if len(peers) > 0:
+        return peers[0]
+    else:
+        return None

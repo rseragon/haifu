@@ -99,7 +99,7 @@ class Peer:
         """
         returns connection reader and writer for peer
         """
-        if self._connected is not False:
+        if self._connected is True:
             return True
 
         try:
@@ -109,15 +109,24 @@ class Peer:
             self._connected = True
         except ConnectionRefusedError as ce:
             Debug.error(0, f"[Connection] Failed to connect ({self.host}, {self.port}) " + str(e))
-            return False
+            self._connected = False
+            return self._connected  # Cannot connet
 
-        return True
+        return self._connected
 
 
-    async def connect(self) -> tuple[StreamReader, StreamWriter]:
-        if self._connected is False:
-            await self._create_conn()
+    async def connect(self) -> bool:
+        return await self._create_conn()
+
+    def get_reader_writer(self) -> tuple[StreamReader, StreamWriter]:
         return self._reader, self._writer
+
+
+    async def aclose(self):
+        if self._connected is False:
+            return
+        self._writer.close()
+        await self._writer.wait_closed()
 
     def __repr__(self) -> str:
         return f"({self.host}, {self.port}) [{self.name}, {self.arch}, {self.os}, {self.distro}]"

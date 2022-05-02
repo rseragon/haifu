@@ -165,16 +165,29 @@ async def send_package(pkg_name: str, reader: StreamReader, writer: StreamWriter
     await async_write_data(res, writer)
 
     # Wait for peer to ask for which package he wants
+    Debug.info("[USELESS] waiting from index")
     resp = await async_read_data(reader)
 
     req_obj = Request(dict_from_str(resp))
 
     if req_obj.getIndex() == -1 or req_obj.getIndex() > len(pkg_info):  # When peer doesn't want any package
         Debug.debug(f"[Peer] Index invalid {writer.get_extra_info('peername')}")
+        # TODO: Error
         return
 
+    # Send asker info about the file
+    file_name = cached_pkgs[req_obj.getIndex()].filename()
+
+    file_info = make_result_strjson(ResultType.SUCCESSFUL, file_name)
+    Debug.info(f"[File] file_info result: {file_info}")
+
+    await async_write_data(file_info, writer)
+    Debug.info("[USELESS] after writing file_info send_package")
+
     # Send peer the required package
-    await send_file(pkg_info[req_obj.getIndex()].get_file_location(), writer)
+    # await send_file(cached_pkgs[req_obj.getIndex()].get_file_location(), writer)
+    Debug.info(f"[Package] package index: {req_obj.getIndex()}")
+    await send_file(cached_pkgs[req_obj.getIndex()].get_pkg_location(), writer)
 
 
 async def fetch_package(
@@ -191,8 +204,9 @@ async def fetch_package(
     """
     # Get the peer list
     db = DatabaseInterface()
-    peers: list[Peer] = [peer for peer in db.get_peers() if await peer.async_is_alive()]
-    Debug.debug(f"[Peer] PeerList: {peers}")
+    #peers: list[Peer] = [peer for peer in db.get_peers() if await peer.async_is_alive()]
+    peers: list[Peer] = [peer for peer in db.get_peers()]
+    Debug.debug(f"[Peer] Peers in DB: {peers}")
 
     if len(peers) < 1:
         await async_write_data(make_result_strjson(ResultType.FAILED, {}, "No peers in the list"), writer)
@@ -201,14 +215,35 @@ async def fetch_package(
 
     peer_with_pkg = await get_peer_with_package(pkg_name, peers)
 
-    if peer_with_pkg == None:
+    if peer_with_pkg is None:
         await async_write_data(make_result_strjson(ResultType.FAILED, {}, "No peers alive"), writer)
         Debug.error(0, "[Peers] All peers are down")
         return
 
-    file_loc  = recv_file(peer_with_pkg._reader)
+    # TODO: ask peer to send the required package
+    pkgIdx_str = make_response_strjson(RequestType.PKG_INDEX, peer_with_pkg._pkg_index)
+
+    Debug.info("[USELESS] before sending index")
+    await async_write_data(pkgIdx_str, peer_with_pkg._writer)
+
+    # Get info about the file
+    file_info = Result(dict_from_str(await async_read_data(peer_with_pkg.get_reader_writer()[0])))  # Reads from the peer reader
+
+    file_name = file_info.getData()
+    Debug.info(f"[USELESS] Receving filename: {file_name}")
+
+    file_loc = await recv_file(file_name, peer_with_pkg._reader)
+
+    Debug.debug(f"[File] file stored in: {file_loc}")
 
     # TODO: write back to writer the package location
+    process_done = ""
+    if file_loc != "":
+        process_done = make_result_strjson(ResultType.SUCCESSFUL, file_loc)
+    else:
+        process_done = make_result_strjson(ResultType.FAILED, "", "File not received, check daemon logs")
+
+    await async_write_data(process_done, writer)
 
 
 async def add_peer(peer_info: tuple[str, int], writer: StreamWriter):
@@ -248,11 +283,11 @@ async def send_info(req_obj: Request, writer: StreamWriter):
 
     peer = Peer(host, port)
 
-    if await peer._create_conn() is False:
+    if await peer.connect() is False:
         Debug.debug(f"Failed to check if peer was daemon: ({host}, {port})")
         return
 
-    r, w = await peer.connect()
+    r, w = peer.get_reader_writer()
 
     await async_write_data(check_daemon, w)
     resp = Result(dict_from_str(await async_read_data(r)))

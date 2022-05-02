@@ -1,16 +1,43 @@
 import json
 from asyncio import StreamReader, StreamWriter
+from pathlib import Path
 import socket
 import utils.Debug as Debug
 from typing import Any
-from utils.Types import ResultType
+from utils.Types import RequestType, ResultType
+import utils.Config as Config
+import aiofiles
+import os
 
 
-def make_response_strjson(code_type: int, data: Any) -> str:
+def make_response_strjson(code_type: int, data: Any, info: str = "") -> str:
     """
     Takes in a dict and returns a bytes type request json data
     """
-    return json.dumps({"Type": code_type, "Payload": data})
+    if code_type == RequestType.PING:
+        return json.dumps({"Type": code_type, "Payload": {"info": info}})
+
+    elif code_type in [
+        RequestType.SEARCH,
+        RequestType.GET_INFO,
+        RequestType.SEND_PKG,
+        RequestType.FETCH_PKG,
+    ]:
+        return json.dumps(
+            {"Type": code_type, "Payload": {"Package Name": data, "info": info}}
+        )
+
+    elif code_type == RequestType.PKG_INDEX:
+        return json.dumps({"Type": code_type, "Payload": {"info": info, "index": data}})
+
+    elif code_type == RequestType.PEER_INFO:
+        return json.dumps({"Type": code_type, "Payload": {"info": info}})
+
+    elif code_type == RequestType.ADD_PEER:
+        host, port = data
+        return json.dumps(
+            {"Type": code_type, "Payload": {"host": host, "port": port, "info": info}}
+        )
 
 
 def make_result_strjson(result_type: int, data: Any, error: str = "") -> str:
@@ -45,20 +72,28 @@ def dict_from_str(data: str) -> Any:
     return json_data[0] if (isinstance(json_data, list)) else json_data
 
 
-#TODO: Try except
 async def async_read_data(reader: StreamReader) -> str:
+    """
+    Reads the data from readers and returns the read string
+    """
     str_data = ""
     byte_data = b""
-    read_content_length = await reader.readuntil(b'\n')
-    data_len = int(read_content_length)  # Get's the content len in int
+    try:
+        read_content_length = await reader.readuntil(b'\n')
+        #read_content_length = await reader.readline()
+        data_len = int(read_content_length[:-1])  # Get's the content len in int
 
-    while len(str_data) < data_len:
-        byte_data = await reader.read(1)
-        if not byte_data:
-            break
-        str_data += byte_data.decode("utf-8")
+        # Now read th data
+        while len(str_data) < data_len:
+            byte_data = await reader.read(1)
+            if not byte_data:
+                break
+            str_data += byte_data.decode("utf-8")
 
-    return str_data
+        return str_data
+    except Exception as e:
+        Debug.debug("[Connection] Failed to read data: " + str(e))
+        return ""
 
 
 async def async_write_data(data: str, writer: StreamWriter):
@@ -70,7 +105,7 @@ async def async_write_data(data: str, writer: StreamWriter):
 
     # Write the length of data to send
     writer.write((str(write_len)).encode("gbk"))
-    writer.write(b'\n')
+    writer.write(b"\n")
     await writer.drain()
 
     # write the data
@@ -93,7 +128,7 @@ def send_data(data: str, host: str, port: int) -> str:
     """
     resp = b""
 
-    bytes_data = data.encode('gbk')
+    bytes_data = data.encode("gbk")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
         # Connect
@@ -104,29 +139,74 @@ def send_data(data: str, host: str, port: int) -> str:
             return ""
 
         # Send data
-        sock.sendall(str(len(bytes_data)).encode('gbk')) # Send length
-        sock.sendall(b'\n')  # A new line
+        sock.sendall(str(len(bytes_data)).encode("gbk"))  # Send length
+        sock.sendall(b"\n")  # A new line
         sock.sendall(bytes_data)  # the real data
 
         # Receive data
         while True:
             temp = sock.recv(1)
-            if not temp: break
+            if not temp:
+                break
             resp += temp
 
-    result = resp.decode('utf-8')
+    result = resp.decode("utf-8")
 
-    return result[result.find('\n'):]  # removes the first line which contains the number
+    return result[
+        result.find("\n") :
+    ]  # removes the first line which contains the number
 
 
 async def send_file(file_location: str, writer: StreamWriter) -> None:
     """
     sends file to writer
     """
-    pass
+    Debug.debug(
+        f"[Package] sending {file_location} to {writer.get_extra_info('peername')}"
+    )
 
-async def recv_file(reader: StreamReader) -> str:
+    Debug.info(f"[USELESS] file_loc: {file_location}")
+    file_size = os.path.getsize(file_location)
+
+    data = str(file_size)
+    writer.write(str(data + "\n").encode("gbk"))
+    await writer.drain()
+
+    async with aiofiles.open(file_location, mode="rb") as f:
+        while data != b"":
+            data = await f.read(1024)  # TODO: Chunk it better
+            writer.write(data)
+
+    await writer.drain()
+
+
+async def recv_file(filename: str, reader: StreamReader) -> str:
     """
     recevices the files and returns the stored locations
+    TODO: What if the file is very large
     """
-    pass
+    file_size = int(await reader.readline())
+
+    Debug.info(f"[USELESS] file size: {file_size}")
+
+    cache_path = Config.get_cachedir()
+    Debug.info(f"[USELESS] cache dir: {cache_path}")
+
+    file_loc = Path(cache_path) / filename
+
+    Debug.info(f"[USELESS] file_loc: {file_loc}")
+
+    try:
+        async with aiofiles.open(file_loc, mode="wb") as f:
+            while True:
+                data: bytes = await reader.read(1024)
+                if len(data) == 0:
+                    break
+                await f.write(data)
+
+        Debug.debug(f"[File] file received: {file_loc}")
+
+        return str(file_loc)
+    except Exception as e:
+        Debug.error(0, f"[File] Failed to Receive file: {filename} ({str(e)})")
+        return ""

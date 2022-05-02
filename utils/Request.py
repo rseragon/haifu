@@ -1,5 +1,6 @@
 from utils.Types import RequestType
 import json
+from typing import Any
 
 """
 Reqeust json skelton
@@ -73,3 +74,9 @@ class Request(dict):
 
     def toJson(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__)
+
+
+class MakeRequest:
+
+    def __init__(self, req_type: RequestType, data: Any):
+        pass

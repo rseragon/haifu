@@ -1,4 +1,17 @@
 import json
+import platform
+import utils.Debug as Debug
+
+
+PLATFORM_ID = platform.freedesktop_os_release().get("ID", "").lower()
+PLATFORM_ID_LIKE = platform.freedesktop_os_release().get("ID_LIKE", "").lower()
+
+
+if PLATFORM_ID_LIKE == "arch" or PLATFORM_ID == "arch":
+    import pkgman.pacman as PackageManager
+else:
+    Debug.error(1, "Supports only Arch as of now")
+
 
 
 class Package(dict):
@@ -24,7 +37,17 @@ class Package(dict):
         print(self)
 
     def filename(self):
-        return self.file_name
+        """
+        Returns the location of the cached packag
+        """
+        return PackageManager.pkg_file_name(self)
+
+    def get_pkg_location(self) -> str:
+        """
+        Returns the package location
+        """
+        return PackageManager.get_file_location(self)
+
 
     def __repr__(self) -> str:
         return f"Package Name: {self.name}\n\
