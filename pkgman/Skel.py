@@ -43,3 +43,10 @@ def install_package(pkg_loc: str) -> bool:
     Install the package from the locations
     """
     pass
+
+
+def get_file_name(pkg_name: str) -> str:
+    """
+    Returns the file name of the package
+    """
+    return ""

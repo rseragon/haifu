@@ -1,15 +1,28 @@
 from typing import Any
 #from utils.Package import Package
+from pathlib import Path
 
 import apt
 import apt_pkg
+
+import os
+
+CACHE_DIR = '/var/cache/apt/archives'
+APT_CACHE = apt.Cache()
 
 def search_pkg(pkg_name: str) -> list[str]:
     """
     Returns a list of packages info which match
     the given package name
     """
-    return []
+    global APT_CACHE
+
+    pkg = APT_CACHE.get(pkg_name, None)
+
+    if pkg is None:
+        return []
+
+    return [pkg.name]
 
 #def get_info(pkg_name: str) -> list[Package]:
 def get_info(pkg_name: str) -> list[Any]:
@@ -18,22 +31,71 @@ def get_info(pkg_name: str) -> list[Any]:
     info about the package like MD5, depnds,
     arch etc.
     """
-    return []
+    from utils.Package import Package  # Fix circular deps
+    global APT_CACHE
+
+    cache_pkg = APT_CACHE.get(pkg_name, None)
+
+    if cache_pkg is None:
+        return []
+
+    deps = []
+
+    try:
+        for dep in cache_pkg.candidate.dependencies:
+            for base_dep in dep:
+                deps.append(base_dep.name)
+    except Exception:
+        pass
+
+    pkg = Package(cache_pkg.name, cache_pkg.candidate.md5, cache_pkg.candidate.sha256, deps, cache_pkg.versions[0].version, cache_pkg.architecture)
+    return [pkg]
 
 def check_installed(pkg_name: str) -> bool:
     """
     Checks if the given package is installed
     """
-    return False
+    global APT_CACHE
+    pkg = APT_CACHE.get(pkg_name, None)
+
+    if pkg is None:
+        return False
+    
+    return pkg.is_installed
 
 
-
-def get_file_location() -> str:
+def get_file_location(pkg_name: str) -> str:
     """
     Returns the location of the file in cache
     """
-    return ""
+    global CACHE_DIR
+    filename = get_file_name(pkg_name)
 
+    cache_path = Path(CACHE_DIR)
+
+    # Checks if file name is present in the cache
+    file_path = [pth for pth in cache_path.glob("*.deb") if pth is not None and pth.rsplit('/')[-1] == filename]
+
+    if len(file_path) == 0:
+        return ""
+
+    return file_path[0]
+
+
+def get_file_name(pkg_name: str) -> str:
+    """
+    Gets the file name of the package
+    """
+    global APT_CACHE
+
+    pkg = APT_CACHE.get(pkg_name, None)
+
+    if pkg is None:
+        return ""
+
+    return pkg.candidate.filename.rsplit('/')[-1] 
+    # Retuns the package name for eg
+    # zsh_5.8-3ubuntu1.1_amd64.deb
 
 def in_cache(pkg_name: str) -> bool:
     """
@@ -46,4 +108,7 @@ def install_package(pkg_loc: str) -> bool:
     """
     Install the package from the locations
     """
-    pass
+    if pkg_loc == "":
+        return False
+    os.system(f'sudo apt-get install {pkg_loc}')
+    return True

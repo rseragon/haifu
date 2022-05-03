@@ -14,7 +14,7 @@ if PLATFORM_ID_LIKE == "arch" or PLATFORM_ID == "arch":
     os.system("poetry add pyalpm")
     # Install pyalpm
 elif PLATFORM_ID == "debian" or PLATFORM_ID_LIKE == "debian":
-    os.system("sudo apt install python-apt python3-distutils") # Install python stubs for debian
+    os.system("sudo apt install python-apt python3-dev python3-distutils libapt-pkg-dev") # Install python stubs for debian
     os.system("pip install -r requirements.txt")
 elif PLATFORM_ID == "fedora" or PLATFORM_ID_LIKE == "fedora":
     pass
