@@ -124,7 +124,13 @@ def install_package(pkg_loc: str) -> bool:
     Installs the package from the location
     TODO: Make a better version
     """
+    if pkg_loc == "":
+        Debug.error(0, f"File location invalid: {pkg_loc}")
+        return False
+
     if not Path(pkg_loc).exists():
         Debug.error(0, f"File location invalid: {pkg_loc}")
+        return False
+
     os.system(f"sudo pacman -U {pkg_loc}")
     Debug.info(f"[Pacakge] Installed {pkg_loc}") 

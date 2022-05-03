@@ -66,11 +66,13 @@ def check_installed(pkg_name: str) -> bool:
     return pkg.is_installed
 
 
-def get_file_location(pkg_name: str) -> str:
+def get_file_location(pkg: Any) -> str:
     """
     Returns the location of the file in cache
     """
     global CACHE_DIR
+    pkg_name = pkg.name
+
     filename = pkg_file_name(pkg_name)
 
     cache_path = Path(CACHE_DIR)
@@ -85,10 +87,13 @@ def get_file_location(pkg_name: str) -> str:
     return file_path[0]
 
 
-def pkg_file_name(pkg_name: str) -> str:
+def pkg_file_name(pkg: Any) -> str:
     """
     Gets the file name of the package
     """
+    from utils.Package import Package
+
+    pkg_name = pkg.name
     global APT_CACHE
 
     pkg = APT_CACHE.get(pkg_name, None)

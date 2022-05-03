@@ -15,3 +15,11 @@ fall back to server if not peers
 peer
 install - done
 ubuntu
+
+
+install python-apt and python3-apt for debian
+    + To fix apt_pkg problem: https://stackoverflow.com/questions/13708180/python-dev-installation-error-importerror-no-module-named-apt-pkg
+    + https://github.com/python-poetry/poetry/issues/1363
+    + Make sure to use `apt-get` instead of `apt` to store packages in cache
+
+Wait time is too much for daemon to respond - fetch_package - asyncio.sleep(5)

@@ -82,7 +82,8 @@ def get_logfile():  # TODO: Type annotation
     if LOG_FILE is not None:
         return LOG_FILE
 
-    file_name = PROJECT_NAME + "_" + datetime.now().strftime("%d%m%Y_%H%M") + ".log"
+    # haifu_dayOfMonth/month/year_HourMin_pid.log
+    file_name = PROJECT_NAME + "_" + datetime.now().strftime("%d%m%Y_%H%M") + str(get_pid()) + ".log"
 
     log_file: str = str((Path(LOG_DIR) / file_name).absolute())
 

@@ -79,8 +79,8 @@ async def async_read_data(reader: StreamReader) -> str:
     str_data = ""
     byte_data = b""
     try:
-        read_content_length = await reader.readuntil(b'\n')
-        #read_content_length = await reader.readline()
+        #read_content_length = await reader.readuntil(b'\n')
+        read_content_length = await reader.readline()
         data_len = int(read_content_length[:-1])  # Get's the content len in int
 
         # Now read th data
@@ -182,7 +182,6 @@ async def send_file(file_location: str, writer: StreamWriter) -> None:
         f"[Package] sending {file_location} to {writer.get_extra_info('peername')}"
     )
 
-    Debug.info(f"[USELESS] file_loc: {file_location}")
     file_size = os.path.getsize(file_location)
 
     data = str(file_size)
@@ -195,6 +194,7 @@ async def send_file(file_location: str, writer: StreamWriter) -> None:
             writer.write(data)
 
     await writer.drain()
+    Debug.debug(f"[Package] file sent: {file_location}")
 
 
 async def recv_file(filename: str, reader: StreamReader) -> str:
@@ -202,6 +202,7 @@ async def recv_file(filename: str, reader: StreamReader) -> str:
     recevices the files and returns the stored locations
     TODO: What if the file is very large
     """
+    Debug.debug(f"[Package] Getting file: {filename}")
     file_size = int(await reader.readline())
 
     Debug.info(f"[USELESS] file size: {file_size}")

@@ -93,8 +93,10 @@ def install_pkg(pkg_name: str) -> bool:
 
     file_loc = request_daemon(RequestType.FETCH_PKG, full_pkg_name)
 
-    if file_loc == "":
-        Debug.debug("[CLI] Failed to retrive package")
+    # If it's not a str (since the receiving value can be anything)
+    if not isinstance(file_loc, str) or file_loc == "":
+        # Debug.debug("[CLI] Failed to retrive package")
+        Debug.error(0, "Failed to retrive package (check daemon logs for info)")
         return False
 
     Debug.info("[USELESS] File location: " + str(file_loc))

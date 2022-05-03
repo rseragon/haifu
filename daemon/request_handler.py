@@ -152,13 +152,13 @@ async def send_package(pkg_name: str, reader: StreamReader, writer: StreamWriter
     pkg_info = [pkg.toJson() for pkg in cached_pkgs]
 
     res = make_result_strjson(ResultType.SUCCESSFUL, pkg_info)
-    Debug.info(f"[USELESS] result: {res}")
+    Debug.info(f"[SEND_PKG] result: {res}")
 
     # Send data about available packages
     await async_write_data(res, writer)
 
     # Wait for peer to ask for which package he wants
-    Debug.info("[USELESS] waiting from index")
+    Debug.info("[SEND_PKG] waiting from index")
     resp = await async_read_data(reader)
 
     req_obj = Request(dict_from_str(resp))
@@ -168,6 +168,8 @@ async def send_package(pkg_name: str, reader: StreamReader, writer: StreamWriter
         # TODO: Error
         return
 
+    Debug.info(f"[SEND_PKG] got index: {req_obj.getIndex()}")
+
     # Send asker info about the file
     file_name = cached_pkgs[req_obj.getIndex()].filename()
 
@@ -175,7 +177,7 @@ async def send_package(pkg_name: str, reader: StreamReader, writer: StreamWriter
     Debug.info(f"[File] file_info result: {file_info}")
 
     await async_write_data(file_info, writer)
-    Debug.info("[USELESS] after writing file_info send_package")
+    Debug.info("[SEND_PKG] after writing file_info send_package")
 
     # Send peer the required package
     # await send_file(cached_pkgs[req_obj.getIndex()].get_file_location(), writer)
@@ -213,15 +215,20 @@ async def fetch_package(
         Debug.error(0, "[Peers] All peers are down")
         return
 
-    # TODO: ask peer to send the required package
+    if await peer_with_pkg.connect() is False: # Make sure it's conneted
+        Debug.error(0, f"Unabled to connect to: {peer_with_pkg}")
+        return
+
+    # Ask the peer to send the package(The index is already stored with asking for package)
     pkgIdx_str = make_response_strjson(RequestType.PKG_INDEX, peer_with_pkg._pkg_index)
 
-    Debug.info("[USELESS] before sending index")
-    await async_write_data(pkgIdx_str, peer_with_pkg._writer)
+    Debug.info(f"[FETCH_PKG index] before sending index {pkgIdx_str}")
+    await async_write_data(pkgIdx_str, peer_with_pkg.get_reader_writer()[1])
 
     # Get info about the file
-    file_info = dict_from_str(await async_read_data(peer_with_pkg.get_reader_writer()[0]))
-    Debug.info(f"[USELESS] after file_info: {file_info}")
+    await asyncio.sleep(5) # Wait for sometime for other deamon process request
+    file_info_str = await async_read_data(peer_with_pkg.get_reader_writer()[0]) # Task is getting destroyed here
+    file_info = dict_from_str(file_info_str)
 
     if file_info is None:
         # TODO: Error
@@ -231,7 +238,7 @@ async def fetch_package(
     file_info_res = Result(file_info)
     file_name = file_info_res.getData()
 
-    Debug.info("[USELESS] before recv_file")
+    Debug.info("[FETCH_PKG] before recv_file")
     file_loc  = await recv_file(file_name, peer_with_pkg._reader)
 
     Debug.debug(f"[File] file stored in: {file_loc}")
