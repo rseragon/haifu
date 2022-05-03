@@ -7,10 +7,6 @@ PLATFORM_ID = platform.freedesktop_os_release().get("ID", "").lower()
 PLATFORM_ID_LIKE = platform.freedesktop_os_release().get("ID_LIKE", "").lower()
 
 
-if PLATFORM_ID_LIKE == "arch" or PLATFORM_ID == "arch":
-    import pkgman.pacman as PackageManager
-else:
-    Debug.error(1, "Supports only Arch as of now")
 
 
 
@@ -40,12 +36,14 @@ class Package(dict):
         """
         Returns the location of the cached packag
         """
+        from pkgman import PackageManager  # Fix circular import
         return PackageManager.pkg_file_name(self)
 
     def get_pkg_location(self) -> str:
         """
         Returns the package location
         """
+        from pkgman import PackageManager # Fix cirular import
         return PackageManager.get_file_location(self)
 
 

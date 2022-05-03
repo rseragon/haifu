@@ -8,11 +8,11 @@ if PLATFORM_ID_LIKE == "arch" or PLATFORM_ID == "arch":
     import pkgman.pacman as PackageManager
     # Install pyalpm
 elif PLATFORM_ID == "debian" or PLATFORM_ID_LIKE == "debian":
-    pass
+    import pkgman.deb_apt as PackageManager
     # Install python-apt
 elif PLATFORM_ID == "fedora" or PLATFORM_ID_LIKE == "fedora":
     pass
     # python-dnf?
 else:
-    Debug.error(1, "Supports only Arch as of now")
+    Debug.error(1, "Supports only Arch, Debian as of now")
 

@@ -1,5 +1,4 @@
 from asyncio.exceptions import CancelledError
-import platform
 from daemon.peer_functions import add_to_db, current_daemon_info, get_peer_with_package
 from db.DBInterface import DatabaseInterface
 from pkgman.Skel import get_info
@@ -24,14 +23,8 @@ import asyncio
 from typing import Any
 from asyncio import StreamReader, StreamWriter
 
-if (platform.freedesktop_os_release().get("ID", "") == "arch") or (
-    platform.freedesktop_os_release().get("ID_LIKE", "") == "arch"
-):
-    from pkgman import pacman as PackageManager
+from pkgman import PackageManager
 
-    Debug.debug(f"[OS] ID: {platform.freedesktop_os_release().get('ID', '')}")
-else:
-    Debug.error(1, "Supports only Arch as of now")
 
 
 async def process_request(
