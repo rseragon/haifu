@@ -31,6 +31,7 @@ def main(daemon: bool=False, DebugLevel: int=2) -> None:
             is_parent = daemonizer(Config.get_pidfile())
 
             if is_parent:
+                Debug.debug("PID: " + str(os.getpid()))
                 # TODO: Is this required?
                 pass
 

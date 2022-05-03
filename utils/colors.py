@@ -11,5 +11,5 @@ def print_yellow(msg: str) -> None:
 def print_green(msg: str) -> None:
     print(Fore.GREEN + msg)
 
-def print_cyan(msg: str) -> None:
-    print(Fore.CYAN + msg)
+def print_cyan(msg: str, end: str = '\n') -> None:
+    print(Fore.CYAN + msg, end = end)

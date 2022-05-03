@@ -30,12 +30,15 @@ class Server:
         self.server: Any  # TODO: Type this
 
     async def __aenter__(self):
-        self.server = await asyncio.start_server(
-            self._handle_request_placeholder,
-            self.host,
-            self.port,
-            family=socket.AF_INET,
-        )
+        try:
+            self.server = await asyncio.start_server(
+                self._handle_request_placeholder,
+                self.host,
+                self.port,
+                family=socket.AF_INET,
+            )
+        except OSError:
+            Debug.error(1, "Daemon instance already running")
 
         server_address = ", ".join(
             str(sock.getsockname()) for sock in self.server.sockets

@@ -72,7 +72,7 @@ async def process_request(
             # TODO: ERROR
             return
         await search_package(package_name, writer)
-    elif request_type == RequestType.GET_INFO:
+    elif request_type == RequestType.PKG_INFO:
         package_name = req.getPackageName()
         if package_name == "":
             # TODO: ERROR
@@ -227,23 +227,24 @@ async def fetch_package(
     await async_write_data(pkgIdx_str, peer_with_pkg._writer)
 
     # Get info about the file
-    file_info = Result(dict_from_str(await async_read_data(peer_with_pkg.get_reader_writer()[0])))  # Reads from the peer reader
+    file_info = dict_from_str(await async_read_data(peer_with_pkg.get_reader_writer()[0]))
+    Debug.info(f"[USELESS] after file_info: {file_info}")
 
-    file_name = file_info.getData()
-    Debug.info(f"[USELESS] Receving filename: {file_name}")
+    if file_info is None:
+        # TODO: Error
+        Debug.debug("[Daemon] Didn't receive file info")
+        return
 
-    file_loc = await recv_file(file_name, peer_with_pkg._reader)
+    file_info_res = Result(file_info)
+    file_name = file_info_res.getData()
+
+    Debug.info("[USELESS] before recv_file")
+    file_loc  = await recv_file(file_name, peer_with_pkg._reader)
 
     Debug.debug(f"[File] file stored in: {file_loc}")
 
-    # TODO: write back to writer the package location
-    process_done = ""
-    if file_loc != "":
-        process_done = make_result_strjson(ResultType.SUCCESSFUL, file_loc)
-    else:
-        process_done = make_result_strjson(ResultType.FAILED, "", "File not received, check daemon logs")
-
-    await async_write_data(process_done, writer)
+    found = make_result_strjson(ResultType.SUCCESSFUL, file_loc)
+    await async_write_data(found, writer)
 
 
 async def add_peer(peer_info: tuple[str, int], writer: StreamWriter):

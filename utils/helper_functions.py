@@ -19,7 +19,7 @@ def make_response_strjson(code_type: int, data: Any, info: str = "") -> str:
 
     elif code_type in [
         RequestType.SEARCH,
-        RequestType.GET_INFO,
+        RequestType.PKG_INFO,
         RequestType.SEND_PKG,
         RequestType.FETCH_PKG,
     ]:
@@ -130,16 +130,18 @@ def send_data(data: str, host: str, port: int, get_data: bool = True) -> str:
 
     bytes_data = data.encode("gbk")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.settimeout(10)
+        #sock.settimeout(10)
 
         # Connect
         try:
             sock.connect((host, port))
         except ConnectionRefusedError as cre:
             Debug.debug("Failed to connect to host ({}, {})".format(host, port))
+            #sock.close()
             return ""
         except TimeoutError:
             Debug.debug("Failed to connect to host ({}, {}): Connection timed out".format(host, port))
+            #sock.close()
             return ""
 
         # Send data

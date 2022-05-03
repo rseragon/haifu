@@ -36,3 +36,10 @@ def in_cache(pkg_name: str) -> bool:
     Checks if the given package is in cache
     """
     pass
+
+
+def install_package(pkg_loc: str) -> bool:
+    """
+    Install the package from the locations
+    """
+    pass

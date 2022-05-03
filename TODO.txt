@@ -4,3 +4,14 @@ Fix circular peer info pinging
 To Make your daemon accessible to other for sharing info (don't be greedy)
 you'd have to edit your config
 change it from '0.0.0.0' to 'your outward facing ip'
+
+
+Table
+abstract away sending info in cli
+add peer function
+
+fall back to server if not peers
+
+peer
+install - done
+ubuntu

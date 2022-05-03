@@ -10,6 +10,8 @@ PLATFORM_ID = platform.freedesktop_os_release().get("ID", "").lower()
 PLATFORM_ID_LIKE = platform.freedesktop_os_release().get("ID_LIKE", "").lower()
 Debug.debug(f"[OS] ID: {PLATFORM_ID}")
 
+os.system('poetry install')
+
 if PLATFORM_ID_LIKE == "arch" or PLATFORM_ID == "arch":
     os.system("poetry add pyalpm")
     # Install pyalpm

@@ -19,7 +19,7 @@ class RequestType(IntEnum):
     QUIT = 0  # this is dummy, Will be handled by signals
     PING = 0  # If 0 is sent to another daemon, then it acts a ping
     SEARCH = 1
-    GET_INFO = 2
+    PKG_INFO = 2
     SEND_PKG = 3
     PKG_INDEX = 4  # Used when getting index of packge from the received list of packages
     FETCH_PKG = 5

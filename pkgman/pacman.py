@@ -4,6 +4,7 @@ from pathlib import Path
 import utils.Debug as Debug
 # from utils.Package import Package  # Ciruclar import
 from typing import Any
+import os
 
 PACMAN_DIR = '/var/lib/pacman'
 CACHE_DIR  = '/var/cache/pacman/pkg'
@@ -117,3 +118,13 @@ def in_cache(pkg_name: str) -> bool:
     return found
 
 
+
+def install_package(pkg_loc: str) -> bool:
+    """
+    Installs the package from the location
+    TODO: Make a better version
+    """
+    if not Path(pkg_loc).exists():
+        Debug.error(0, f"File location invalid: {pkg_loc}")
+    os.system(f"sudo pacman -U {pkg_loc}")
+    Debug.info(f"[Pacakge] Installed {pkg_loc}") 
