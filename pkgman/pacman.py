@@ -134,3 +134,13 @@ def install_package(pkg_loc: str) -> bool:
 
     os.system(f"sudo pacman -U {pkg_loc}")
     Debug.info(f"[Pacakge] Installed {pkg_loc}") 
+
+
+def fallback_install(pkg_name: str) -> bool:
+    """
+    Install it via normal server
+    """
+    if pkg_name == "":
+        return False
+    os.system(f"sudo pacman -Sy {pkg_name}")
+    return True

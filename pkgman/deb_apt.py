@@ -133,3 +133,13 @@ def install_package(pkg_loc: str) -> bool:
         return False
     os.system(f'sudo apt-get install {pkg_loc}')
     return True
+
+
+def fallback_install(pkg_name: str) -> bool:
+    """
+    Install it via normal server
+    """
+    if pkg_name == "":
+        return False
+    os.system(f"sudo apt install {pkg_name}")
+    return True

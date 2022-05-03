@@ -50,3 +50,9 @@ def pkg_file_name(pkg_name: str) -> str:
     Returns the file name of the package
     """
     return ""
+
+
+def fallback_install(pkg_name: str):
+    """
+    A Fallback installation for the package
+    """

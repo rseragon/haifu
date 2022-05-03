@@ -90,13 +90,15 @@ def install_pkg(pkg_name: str) -> bool:
         return False
 
     full_pkg_name = pkgs[pkg_idx]  # This gets the real package name, which is used for fetching
+    # Eg: tar, zsh, rustup
 
     file_loc = request_daemon(RequestType.FETCH_PKG, full_pkg_name)
 
     # If it's not a str (since the receiving value can be anything)
     if not isinstance(file_loc, str) or file_loc == "":
         # Debug.debug("[CLI] Failed to retrive package")
-        Debug.error(0, "Failed to retrive package (check daemon logs for info)")
+        Debug.error(0, "Failed to retrive package (check daemon logs for info): Falling back to server")
+        PackageManager.fallback_install(full_pkg_name)
         return False
 
     Debug.info("[USELESS] File location: " + str(file_loc))
