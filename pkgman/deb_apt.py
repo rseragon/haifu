@@ -1,7 +1,8 @@
 from typing import Any
-from utils.Package import Package
+#from utils.Package import Package
 
 import apt
+import apt_pkg
 
 def search_pkg(pkg_name: str) -> list[str]:
     """
@@ -10,7 +11,8 @@ def search_pkg(pkg_name: str) -> list[str]:
     """
     return []
 
-def get_info(pkg_name: str) -> list[Package]:
+#def get_info(pkg_name: str) -> list[Package]:
+def get_info(pkg_name: str) -> list[Any]:
     """
     Similar to search_pkg but returns
     info about the package like MD5, depnds,

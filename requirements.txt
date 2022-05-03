@@ -1,0 +1,7 @@
+# THIS IS ONLY FOR DEBIAN
+
+# apt binding for ansible from debian:
+git+https://salsa.debian.org/python-debian-team/python-debian@master
+git+https://salsa.debian.org/python-team/modules/python-distutils-extra@master
+# use the branch for the debian/ubuntu you have
+git+https://salsa.debian.org/apt-team/python-apt@main
