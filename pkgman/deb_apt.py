@@ -7,6 +7,8 @@ import apt_pkg
 
 import os
 
+import utils.Debug as Debug
+
 CACHE_DIR = '/var/cache/apt/archives'
 APT_CACHE = apt.Cache()
 
@@ -69,20 +71,21 @@ def get_file_location(pkg_name: str) -> str:
     Returns the location of the file in cache
     """
     global CACHE_DIR
-    filename = get_file_name(pkg_name)
+    filename = pkg_file_name(pkg_name)
 
     cache_path = Path(CACHE_DIR)
 
     # Checks if file name is present in the cache
-    file_path = [pth for pth in cache_path.glob("*.deb") if pth is not None and pth.rsplit('/')[-1] == filename]
+    file_path = [pth for pth in cache_path.glob("*.deb") if pth is not None and str(pth).rsplit('/')[-1] == filename]
 
     if len(file_path) == 0:
         return ""
 
+    Debug.info(f"[USELESS] File found: {file_path[0]}")
     return file_path[0]
 
 
-def get_file_name(pkg_name: str) -> str:
+def pkg_file_name(pkg_name: str) -> str:
     """
     Gets the file name of the package
     """
@@ -100,8 +103,11 @@ def get_file_name(pkg_name: str) -> str:
 def in_cache(pkg_name: str) -> bool:
     """
     Checks if the given package is in cache
+    TODO: This is inefficient
     """
-    pass
+    if get_file_location(pkg_name) != "":
+        return True
+    return False
 
 
 def install_package(pkg_loc: str) -> bool:

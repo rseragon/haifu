@@ -45,7 +45,7 @@ def install_package(pkg_loc: str) -> bool:
     pass
 
 
-def get_file_name(pkg_name: str) -> str:
+def pkg_file_name(pkg_name: str) -> str:
     """
     Returns the file name of the package
     """

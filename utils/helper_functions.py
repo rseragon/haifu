@@ -174,6 +174,10 @@ async def send_file(file_location: str, writer: StreamWriter) -> None:
     """
     sends file to writer
     """
+    if file_location == "":
+        Debug.error(0, f"[Daemon] Invalid file location: {file_location}")
+        # TODO: Write to writer
+        return
     Debug.debug(
         f"[Package] sending {file_location} to {writer.get_extra_info('peername')}"
     )

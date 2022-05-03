@@ -77,7 +77,10 @@ class Peer:
         req = make_response_strjson(RequestType.PEER_INFO, {"host": host, "port": port})# This acts the 2-way handshake)
         Debug.info(f"[USELESS] req: {req}")
 
-        reader, writer = await self.connect()
+        if await self.connect() is False:
+            return False
+
+        reader, writer = self.get_reader_writer()
         await async_write_data(req, writer)
 
         result = await async_read_data(reader)
