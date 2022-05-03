@@ -71,7 +71,12 @@ def get_file_location(pkg: Any) -> str:
     Returns the location of the file in cache
     """
     global CACHE_DIR
-    pkg_name = pkg.name
+
+    # TODO: This is a quick fix
+    if isinstance(pkg, str):
+        pkg_name = pkg
+    else:
+        pkg_name = pkg.name
 
     filename = pkg_file_name(pkg_name)
 
@@ -84,7 +89,7 @@ def get_file_location(pkg: Any) -> str:
         return ""
 
     Debug.info(f"[USELESS] File found: {file_path[0]}")
-    return file_path[0]
+    return str(file_path)[0]
 
 
 def pkg_file_name(pkg: Any) -> str:

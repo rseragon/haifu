@@ -6,15 +6,7 @@ you'd have to edit your config
 change it from '0.0.0.0' to 'your outward facing ip'
 
 
-Table
-abstract away sending info in cli
-add peer function
-
 fall back to server if not peers
-
-peer
-install - done
-ubuntu
 
 
 install python-apt and python3-apt for debian
