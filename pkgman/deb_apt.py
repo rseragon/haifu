@@ -98,7 +98,12 @@ def pkg_file_name(pkg: Any) -> str:
     """
     from utils.Package import Package
 
-    pkg_name = pkg.name
+    # TODO: This is a quick fix
+    if isinstance(pkg, str):
+        pkg_name = pkg
+    else:
+        pkg_name = pkg.name
+
     global APT_CACHE
 
     pkg = APT_CACHE.get(pkg_name, None)
