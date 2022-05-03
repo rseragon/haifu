@@ -104,3 +104,11 @@ def install_pkg(pkg_name: str) -> bool:
     PackageManager.install_package(file_loc)
 
     return True
+
+
+def add_peer(host: str, port: int) -> bool:
+    """
+    adds peer to db 
+    """
+    # TODO: Check for ill-formatted host, port
+    return request_daemon(RequestType.ADD_PEER, (host, port))

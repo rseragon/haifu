@@ -44,7 +44,9 @@ def display_pkg_info(data: list[Any], take_input: bool = False) -> int:
         arch = data[idx].get('arch', '')
         colors.print_yellow(f"{idx}\t{name} {version}\t\t{arch}")
 
-    return _take_input()
+    if take_input:
+        return _take_input()
+    return -1
 
 
 def display_pkg_list(data: list[str], take_input: bool = False) -> int:
@@ -67,7 +69,9 @@ def display_pkg_list(data: list[str], take_input: bool = False) -> int:
     for idx in range(len(data)):
         colors.print_yellow(f"  {idx} {data[idx]}")
 
-    return _take_input()
+    if take_input:
+        return _take_input()
+    return -1
 
 
 def _take_input():

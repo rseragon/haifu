@@ -39,8 +39,8 @@ class Server:
                 self.port,
                 family=socket.AF_INET
             )
-        except OSError:
-            Debug.error(1, "Daemon instance already running")
+        except OSError as oe:
+            Debug.error(1, "Daemon instance already running: " + str(oe))
 
         server_address = ", ".join(
             str(sock.getsockname()) for sock in self.server.sockets

@@ -1,3 +1,4 @@
+from typing import Optional
 from utils.Peer import Peer
 from db.DBInterface import DatabaseInterface
 import os
@@ -18,6 +19,9 @@ def add_to_db(peer: Peer):
     Adds the peer to the database
     """
     db = DatabaseInterface()
+
+    # TODO: Query for morei info?
+    db.insert_peer(peer)
 
 
 def current_daemon_info() -> dict:
@@ -40,7 +44,7 @@ def current_daemon_info() -> dict:
             "distro": distro}
 
 
-async def get_peer_with_package(peers: list[Peer], pkg_name: str) -> Peer:
+async def get_peer_with_package(peers: list[Peer], pkg_name: str) -> Optional[Peer]:
     """
     A greedy approach which returns the 
     reader and writer and index of package with 
@@ -60,7 +64,9 @@ async def has_package(peer: Peer, pkg_name: str) -> int:
     Returns index if the packge exists
     or else it's -1
     """
-    reader, writer = await peer.connect()
+    await peer.connect()  # TODO: error check
+
+    reader, writer = peer.get_reader_writer()
     req = Request({})
     req.package_name = pkg_name
 
@@ -71,11 +77,12 @@ async def has_package(peer: Peer, pkg_name: str) -> int:
     if res.getType() == ResultType.ERROR:
         return -1
     
-    peer.pkg_index = res.getData()
-    return peer.pkg_index
+    peer._pkg_index = res.getData()
+    return peer._pkg_index
 
 
-async def nearest_peer(list[Peer]):
+async def nearest_peer(peers: list[Peer]):
     """
     Returns the index of peer with the lowest latency
     """
+    return peers[0]

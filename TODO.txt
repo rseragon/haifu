@@ -23,3 +23,18 @@ install python-apt and python3-apt for debian
     + Make sure to use `apt-get` instead of `apt` to store packages in cache
 
 Wait time is too much for daemon to respond - fetch_package - asyncio.sleep(5)
+
+Ubuntu Guide
++ Add ppa deadsnakes: 
+    - sudo apt update
+    - sudo apt install software-properties-common
+    - sudo add-apt-repository ppa:deadsnakes/ppa
+    - sudo apt update
++ Install python >= 3.10
+    - sudo apt install python3.10 
+    - alias python3.10 to python
++ Install poetry
+    - https://python-poetry.org/docs/
+    - add it to the bin
++ run setup.py (Change python version if old current: 3.10)
+    + For some reason you also need gcc to compile stuff (there are now wheels for these)

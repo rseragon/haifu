@@ -10,7 +10,7 @@ import utils.Debug as Debug
 import utils.Config as Config
 from cli import tui
 
-from cli.cli_helpers import check_alive, install_pkg, print_usage, request_daemon
+from cli.cli_helpers import add_peer, check_alive, install_pkg, print_usage, request_daemon
 
 def parse_cliargs(args: list) -> None:
 
@@ -19,7 +19,8 @@ def parse_cliargs(args: list) -> None:
 
     parser = argparse.ArgumentParser(description="A Distributed meta Package Manager")
     parser.add_argument('subcmd', metavar='SUBCOMMAND', help = "daemon, version, search, install, info")
-    parser.add_argument('action', metavar='ACTION', nargs="?", help="start, stop, <package-name>, (host, port)")
+    parser.add_argument('action', metavar='ACTION', nargs="?", help="start, stop, <package-name>, add")
+    parser.add_argument('action_args', metavar='ACTION_ARGS', nargs="*", help="Args for actions")
     parser.add_argument('--no-daemon', help="Run the daemon in foreground", action=argparse.BooleanOptionalAction, required=False)
 
     cli_args = parser.parse_args()
@@ -80,6 +81,19 @@ def parse_cliargs(args: list) -> None:
             if resp is None:
                 Debug.error(1, "[CLI] Failed to retrive info")
             tui.display_pkg_info(resp, False)
+
+    elif cli_args.subcmd == 'peer':
+        if cli_args.action is None:
+            Debug.error(1, f"Action not provided\nUsage: {sys.argv[0]} add host port")
+            return
+        if cli_args.action == "add":
+            if len(cli_args.action_args) == 0:
+                Debug.error(1, f"Action args not provided\nUsage: {sys.argv[0]} add host port")
+                return
+            Debug.info(f'[USELESS] {cli_args.action}: {cli_args.action_args}')
+            host = cli_args.action_args[0]
+            port = int(cli_args.action_args[1])
+            add_peer(host, port)
 
     else:
         Debug.error(1, "Unknown subcommand command")
