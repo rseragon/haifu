@@ -89,7 +89,7 @@ def get_file_location(pkg: Any) -> str:
         return ""
 
     Debug.info(f"[USELESS] File found: {file_path[0]}")
-    return str(file_path)[0]
+    return str(file_path[0])
 
 
 def pkg_file_name(pkg: Any) -> str:
