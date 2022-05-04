@@ -53,13 +53,22 @@ def populate_dirs() -> None:
     """
 
     if not Path(config_dir).exists():
-        os.makedirs(config_dir)
+        try:
+            os.makedirs(config_dir)
+        finally:
+            pass # Exists idk why python throws this exception
 
     if not Path(log_dir).exists():
-        os.makedirs(log_dir)
+        try:
+            os.makedirs(log_dir)
+        finally:
+            pass
 
     if not Path(cache_dir).exists():
-        os.makedirs(cache_dir)
+        try:
+            os.makedirs(cache_dir)
+        finally:
+            pass
 
     DIR_POPULATED = True
     config_name: str = str((Path(CONFIG_DIR) / "config.ini").absolute())
